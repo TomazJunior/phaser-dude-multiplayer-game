@@ -3,15 +3,11 @@
   "version": "1.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "webpack",
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
-    "start": "npm run build && webpack-dev-server --host 0.0.0.0",
     "client": "webpack --config webpack/webpack.client.js --watch",
     "server": "npm-run-all --parallel server:*",
     "server:webpack": "webpack --config webpack/webpack.server.js --watch",
-    "server:nodemon": "nodemon build/server/server.js",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "server:nodemon": "nodemon build/server/server.js"
   },
   "dependencies": {
     "@geckos.io/client": "^1.6.1",

@@ -5,7 +5,14 @@ Game using express, geckos.io, phaser 3 and typescript.
 ## Getting Started
 ```
 npm install
-npm start
+```
+
+```
+npm run server
+```
+
+```
+npm run client
 ```
 ## Author
 
