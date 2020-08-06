@@ -1,0 +1,50 @@
+{
+  "env": {
+      "browser": true,
+      "commonjs": true,
+      "es6": false
+  },
+  "extends": [
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint", // Uses eslint-config-prettier to disable ESLint rules from @typescript-eslint/eslint-plugin that would conflict with prettier
+    "plugin:prettier/recommended"
+    ],
+  "parserOptions": {
+      "ecmaVersion": 6,
+      "sourceType": "module"
+  },
+  "globals": {
+      "Phaser": true,
+      "game" : true
+    },
+  "settings": {
+      "import/core-modules": ["phaser"]
+  },
+  "rules": {
+      "indent": [
+          "warn",
+          2
+      ],
+      "linebreak-style": [
+          "error",
+          "unix"
+      ],
+      "quotes": [
+          "warn",
+          "single"
+      ],
+      "semi": [
+          "error",
+          "always"
+      ],
+      "no-trailing-spaces": [ 
+          "warn", 
+          { "skipBlankLines": true, "ignoreComments": true }
+      ],
+      "no-underscore-dangle": [
+          "warn", 
+          { "allowAfterThis": false, "allowAfterSuper": false }  
+      ],
+      "@typescript-eslint/explicit-module-boundary-types": ["warn"]
+  }
+}
