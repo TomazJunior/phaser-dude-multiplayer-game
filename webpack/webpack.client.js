@@ -2,6 +2,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'development',
@@ -38,6 +39,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'client/index.html',
     }),
+    new CopyWebpackPlugin({ patterns: [{ from: 'client/assets/', to: 'assets' }] }),
     new webpack.DefinePlugin({
       PHYSICS_DEBUG: JSON.stringify(false),
     }),
