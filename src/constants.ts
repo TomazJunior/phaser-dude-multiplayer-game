@@ -4,3 +4,5 @@ export const SKINS = {
   BOMB: 2,
   PLATFORM: 4,
 };
+
+export const EVENTS = {};

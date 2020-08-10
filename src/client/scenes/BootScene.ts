@@ -3,17 +3,9 @@ import geckos, { ClientChannel } from '@geckos.io/client';
 import { SKINS } from '../../constants';
 
 export default class BootScene extends Scene {
+  channel: ClientChannel = geckos({ port: 3000 });
   constructor() {
     super({ key: 'BootScene' });
-
-    const channel: ClientChannel = geckos({ port: 3000 });
-
-    channel.onConnect((error) => {
-      if (error) console.error(error.message);
-      channel.on('ready', () => {
-        this.scene.start('GameScene', { channel });
-      });
-    });
   }
 
   preload() {
@@ -29,5 +21,14 @@ export default class BootScene extends Scene {
       frameHeight: 48,
     });
     this.load.bitmapFont('pixelFont', 'font/font.png', 'font/font.xml');
+  }
+
+  create() {
+    this.channel.onConnect((error) => {
+      if (error) console.error(error.message);
+    });
+    this.channel.on('ready', () => {
+      this.scene.start('GameScene', { channel: this.channel });
+    });
   }
 }

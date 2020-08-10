@@ -1,5 +1,6 @@
+import GameManagerScene from './GameManagerScene';
+
 import 'phaser';
-import GameScene from './GameScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.HEADLESS,
@@ -18,6 +19,6 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   autoFocus: false,
-  scene: [GameScene],
+  scene: [GameManagerScene],
 };
 export default config;

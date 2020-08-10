@@ -6,7 +6,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: 'development',
-  entry: ['./client/index.ts'],
+  entry: ['./src/client/index.ts'],
   output: {
     path: path.resolve(__dirname, '../build/client'),
     filename: '[name].bundle.js',
@@ -37,9 +37,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: 'client/index.html',
+      template: 'src/client/index.html',
     }),
-    new CopyWebpackPlugin({ patterns: [{ from: 'client/assets/', to: 'assets' }] }),
+    new CopyWebpackPlugin({ patterns: [{ from: 'src/client/assets/', to: 'assets' }] }),
     new webpack.DefinePlugin({
       PHYSICS_DEBUG: JSON.stringify(false),
     }),

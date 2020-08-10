@@ -6,7 +6,7 @@ const webpack = require('webpack');
 const { NODE_ENV = 'development' } = process.env;
 
 module.exports = {
-  entry: './server/server.ts',
+  entry: './src/server/server.ts',
   mode: NODE_ENV,
   target: 'node',
 
