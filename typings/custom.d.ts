@@ -4,11 +4,14 @@ declare namespace Phaser {
   }
 }
 
-interface PlayerModel {
+interface PlayerFieldsToBeSync extends FieldsToBeSync {
+  animation: string;
+}
+interface FieldsToBeSync {
   x: number;
   y: number;
   skin: number;
-  playerId: string;
+  id: string;
 }
 
 interface CursorMoviment {

@@ -43,7 +43,7 @@ export default class GameManagerScene extends Scene {
       const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
       const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
       if (x || y) {
-        this.io.emit('playerMoved', child.toModel());
+        this.io.emit('playerMoved', child.getFieldsTobeSync());
       }
       child.postUpdate();
     });
@@ -51,13 +51,11 @@ export default class GameManagerScene extends Scene {
 
   generateTheLevel() {
     const level = this.map.getLevel();
-    console.log('level', level);
     // generate the level
     level.forEach((row, y) => {
       for (let x = 0; x < row.length; x++) {
         const xx = x * this.map.tileSize + this.map.margin.x;
         const yy = y * this.map.tileSize + this.map.margin.y;
-        console.log(`x:${xx} y:${yy}`);
         if (row[x] === 'X') this.ground.add(new Ground(this, this.newId(), xx, yy));
         // if (row[x] === 'G') this.star = new Star(this, this.newId(), xx, yy);
         // if (row[x] === 'M') this.mummyGroup.add(new Mummy(this, this.newId(), xx, yy));
@@ -80,12 +78,12 @@ export default class GameManagerScene extends Scene {
         this.players.add(new Player(this, channel.id, Phaser.Math.RND.integerInRange(100, 700)));
         this.io.room().emit(
           'currentPlayers',
-          this.players.children.entries.map((player: Player) => player.toModel()),
+          this.players.children.entries.map((player: Player) => player.getFieldsTobeSync()),
         );
         this.io.room().emit(
           'currentGround',
           this.ground.children.entries.map((ground: Ground) => {
-            return ground.toModel();
+            return ground.getFieldsTobeSync();
           }),
         );
       });

@@ -1,4 +1,4 @@
-import { SKINS } from '../../../constants';
+import { SKINS, DUDE_ANIMATIONS } from '../../../constants';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
@@ -11,6 +11,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   prevNoMovement: boolean;
   shouldUpdate: boolean;
   velocity: number;
+  animation: string;
   constructor(scene: Phaser.Scene, playerId: string, x = 200, y = 200, dummy = false) {
     super(scene, 96, 224, '');
     scene.add.existing(this);
@@ -18,7 +19,6 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.body.setSize(32, 48);
     this.scene = scene;
-
     this.dead = false;
     this.prevPosition = {
       x: -1,
@@ -85,6 +85,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     else this.setVelocityX(0);
 
     if (this.move.up && this.body.blocked.down) this.setVelocityY(-600);
+    this.animation = DUDE_ANIMATIONS.IDLE;
+    if (this.body.velocity.x >= 0.5) {
+      this.animation = DUDE_ANIMATIONS.RIGHT;
+    } else if (this.body.velocity.x <= -0.5) {
+      this.animation = DUDE_ANIMATIONS.LEFT;
+    }
   }
 
   postUpdate() {
@@ -92,12 +98,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.prevDead = this.dead;
   }
 
-  toModel(): PlayerModel {
+  getFieldsTobeSync(): PlayerFieldsToBeSync {
     return {
       x: this.body.position.x + this.body.width / 2,
       y: this.body.position.y + this.body.height / 2,
       skin: this.skin,
-      playerId: this.playerId,
+      id: this.playerId,
+      animation: this.animation,
     };
   }
 }

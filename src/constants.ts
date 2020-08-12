@@ -6,4 +6,10 @@ export const SKINS = {
   GROUND: 5,
 };
 
+export const DUDE_ANIMATIONS = {
+  LEFT: 'left',
+  IDLE: 'idle',
+  RIGHT: 'right',
+};
+
 export const EVENTS = {};

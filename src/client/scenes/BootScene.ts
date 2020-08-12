@@ -2,6 +2,7 @@ import geckos, { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
 import { SKINS } from '../../constants';
+import { createPlayerAnimations } from '../components/animations';
 
 export default class BootScene extends Scene {
   channel: ClientChannel = geckos({ port: 3000 });
@@ -26,6 +27,7 @@ export default class BootScene extends Scene {
   }
 
   create() {
+    createPlayerAnimations(this);
     this.channel.onConnect((error) => {
       if (error) console.error(error.message);
     });

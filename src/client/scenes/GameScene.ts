@@ -4,6 +4,7 @@ import { Scene } from 'phaser';
 import Cursors from '../components/cursors';
 import Player from '../components/Player';
 import { SKINS } from '../../constants';
+import { setPlayerAnimation } from '../components/animations';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.GameObject>;
@@ -26,13 +27,13 @@ export default class GameScene extends Scene {
   }
 
   listenToChannel() {
-    this.channel.on('currentPlayers', (players: Array<PlayerModel>) => {
+    this.channel.on('currentPlayers', (players: Array<PlayerFieldsToBeSync>) => {
       players
         .filter((player) => {
-          return !this.objects[player.playerId];
+          return !this.objects[player.id];
         })
         .forEach((player) => {
-          if (player.playerId === this.channel.id) {
+          if (player.id === this.channel.id) {
             this.createPlayer(player, true);
           } else {
             this.createPlayer(player, false);
@@ -41,16 +42,19 @@ export default class GameScene extends Scene {
     });
 
     this.channel.on('currentGround', (groundPos: Array<{ id: number; x: number; y: number }>) => {
-      console.log('groundPos', groundPos);
       groundPos.forEach((ground) => {
         const sprite = this.add.sprite(ground.x, ground.y, SKINS.GROUND.toString()).setOrigin(0.5);
         this.objects[ground.id] = sprite;
       });
     });
 
-    this.channel.on('playerMoved', (player: PlayerModel) => {
-      if (this.objects[player.playerId]) {
-        (<Player>this.objects[player.playerId]).setPosition(player.x, player.y);
+    this.channel.on('playerMoved', (playerFields: PlayerFieldsToBeSync) => {
+      if (this.objects[playerFields.id]) {
+        const player = <Player>this.objects[playerFields.id];
+        player.setPosition(playerFields.x, playerFields.y);
+        if (playerFields.animation) {
+          setPlayerAnimation(player, playerFields.animation);
+        }
       }
     });
 
@@ -66,14 +70,14 @@ export default class GameScene extends Scene {
     this.createInput();
   }
 
-  createPlayer(playerModel: PlayerModel, mainPlayer: boolean) {
-    if (!this.objects[playerModel.playerId]) {
-      const player = this.add.sprite(playerModel.x, playerModel.y, SKINS.DUDE.toString()).setOrigin(0.5);
+  createPlayer(playerFields: PlayerFieldsToBeSync, mainPlayer: boolean) {
+    if (!this.objects[playerFields.id]) {
+      const player = this.add.sprite(playerFields.x, playerFields.y, SKINS.DUDE.toString()).setOrigin(0.5);
       if (mainPlayer) {
         this.player = player;
-        this.player.setFrame(4);
+        setPlayerAnimation(player, playerFields.animation);
       }
-      this.objects[playerModel.playerId] = player;
+      this.objects[playerFields.id] = player;
     }
   }
 
