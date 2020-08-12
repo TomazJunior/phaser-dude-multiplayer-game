@@ -1,18 +1,15 @@
 import { ClientChannel } from '@geckos.io/client';
-import { GameObjects, Scene } from 'phaser';
+import { Scene } from 'phaser';
 
 import Cursors from '../components/cursors';
 import Player from '../components/Player';
-
-interface ObjectInfo {
-  sprite: GameObjects.GameObject;
-}
+import { SKINS } from '../../constants';
 
 export default class GameScene extends Scene {
-  objects: Record<string, Player>;
+  objects: Record<string, Phaser.GameObjects.GameObject>;
   channel: ClientChannel;
   playerId: number;
-  player: Player;
+  player: Phaser.GameObjects.Sprite;
   cursors: Cursors;
   constructor() {
     super({ key: 'GameScene' });
@@ -25,6 +22,10 @@ export default class GameScene extends Scene {
   }
 
   create() {
+    this.listenToChannel();
+  }
+
+  listenToChannel() {
     this.channel.on('currentPlayers', (players: Array<PlayerModel>) => {
       players
         .filter((player) => {
@@ -33,16 +34,23 @@ export default class GameScene extends Scene {
         .forEach((player) => {
           if (player.playerId === this.channel.id) {
             this.createPlayer(player, true);
-            // this.addCollisions();
           } else {
             this.createPlayer(player, false);
           }
         });
     });
 
+    this.channel.on('currentGround', (groundPos: Array<{ id: number; x: number; y: number }>) => {
+      console.log('groundPos', groundPos);
+      groundPos.forEach((ground) => {
+        const sprite = this.add.sprite(ground.x, ground.y, SKINS.GROUND.toString()).setOrigin(0.5);
+        this.objects[ground.id] = sprite;
+      });
+    });
+
     this.channel.on('playerMoved', (player: PlayerModel) => {
       if (this.objects[player.playerId]) {
-        this.objects[player.playerId].setPosition(player.x, player.y);
+        (<Player>this.objects[player.playerId]).setPosition(player.x, player.y);
       }
     });
 
@@ -55,16 +63,18 @@ export default class GameScene extends Scene {
     });
 
     this.channel.emit('newPlayer');
-
     this.createInput();
   }
 
   createPlayer(playerModel: PlayerModel, mainPlayer: boolean) {
-    const player = new Player(this, playerModel.playerId, playerModel.x, playerModel.y);
-    if (mainPlayer) {
-      this.player = player;
+    if (!this.objects[playerModel.playerId]) {
+      const player = this.add.sprite(playerModel.x, playerModel.y, SKINS.DUDE.toString()).setOrigin(0.5);
+      if (mainPlayer) {
+        this.player = player;
+        this.player.setFrame(4);
+      }
+      this.objects[playerModel.playerId] = player;
     }
-    this.objects = { ...this.objects, [playerModel.playerId]: player };
   }
 
   update() {

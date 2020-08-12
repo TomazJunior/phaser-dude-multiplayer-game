@@ -1,5 +1,6 @@
-import { Scene } from 'phaser';
 import geckos, { ClientChannel } from '@geckos.io/client';
+import { Scene } from 'phaser';
+
 import { SKINS } from '../../constants';
 
 export default class BootScene extends Scene {
@@ -12,6 +13,7 @@ export default class BootScene extends Scene {
     this.load.setBaseURL('assets');
     this.load.image('sky', 'sky.png');
     this.load.image(SKINS.PLATFORM.toString(), 'platform.png');
+    this.load.image(SKINS.GROUND.toString(), 'ground.png');
     this.load.image(SKINS.STAR.toString(), 'star.png');
     this.load.image(SKINS.BOMB.toString(), 'bomb.png');
     this.load.image('controls', 'controls.png');
