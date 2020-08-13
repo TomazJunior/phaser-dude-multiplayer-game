@@ -7,7 +7,11 @@ declare namespace Phaser {
 interface PlayerFieldsToBeSync extends FieldsToBeSync {
   animation: string;
 }
-interface FieldsToBeSync {
+interface FieldsToBeSync extends BaseFieldsToBeSync {
+  hidden: boolean;
+}
+
+interface BaseFieldsToBeSync {
   x: number;
   y: number;
   skin: number;

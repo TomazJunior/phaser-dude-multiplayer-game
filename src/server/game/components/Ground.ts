@@ -12,7 +12,7 @@ export default class Ground extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(32, 32);
   }
 
-  getFieldsTobeSync() {
+  getFieldsTobeSync(): BaseFieldsToBeSync {
     return {
       id: this.id,
       x: this.body.position.x + this.body.width / 2,

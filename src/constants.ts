@@ -12,4 +12,5 @@ export const DUDE_ANIMATIONS = {
   RIGHT: 'right',
 };
 
+export const NUMBER_OF_STARS = 8;
 export const EVENTS = {};

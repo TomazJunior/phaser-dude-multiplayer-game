@@ -2,12 +2,11 @@ import { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
 import Cursors from '../components/cursors';
-import Player from '../components/Player';
 import { SKINS } from '../../constants';
 import { setPlayerAnimation } from '../components/animations';
 
 export default class GameScene extends Scene {
-  objects: Record<string, Phaser.GameObjects.GameObject>;
+  objects: Record<string, Phaser.GameObjects.Sprite>;
   channel: ClientChannel;
   playerId: number;
   player: Phaser.GameObjects.Sprite;
@@ -41,20 +40,39 @@ export default class GameScene extends Scene {
         });
     });
 
-    this.channel.on('currentGround', (groundPos: Array<{ id: number; x: number; y: number }>) => {
+    this.channel.on('spawnPlayer', (player: PlayerFieldsToBeSync) => {
+      this.createPlayer(player, false);
+    });
+
+    this.channel.on('currentGround', (groundPos: Array<BaseFieldsToBeSync>) => {
       groundPos.forEach((ground) => {
-        const sprite = this.add.sprite(ground.x, ground.y, SKINS.GROUND.toString()).setOrigin(0.5);
+        const sprite = this.add.sprite(ground.x, ground.y, ground.skin.toString()).setOrigin(0.5);
         this.objects[ground.id] = sprite;
+      });
+    });
+
+    this.channel.on('currentStars', (starPos: Array<FieldsToBeSync>) => {
+      starPos.forEach((star) => {
+        const sprite = this.add.sprite(star.x, star.y, star.skin.toString()).setOrigin(0.5);
+        this.objects[star.id] = sprite;
       });
     });
 
     this.channel.on('playerMoved', (playerFields: PlayerFieldsToBeSync) => {
       if (this.objects[playerFields.id]) {
-        const player = <Player>this.objects[playerFields.id];
+        const player = this.objects[playerFields.id];
         player.setPosition(playerFields.x, playerFields.y);
         if (playerFields.animation) {
           setPlayerAnimation(player, playerFields.animation);
         }
+      }
+    });
+
+    this.channel.on('starUpdated', (starFields: FieldsToBeSync) => {
+      if (this.objects[starFields.id]) {
+        const star = this.objects[starFields.id];
+        star.setPosition(starFields.x, starFields.y);
+        if (starFields.hidden !== null) star.setVisible(!starFields.hidden);
       }
     });
 

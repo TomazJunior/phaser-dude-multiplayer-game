@@ -13,7 +13,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   velocity: number;
   animation: string;
   constructor(scene: Phaser.Scene, playerId: string, x = 200, y = 200, dummy = false) {
-    super(scene, 96, 224, '');
+    super(scene, x, y, '');
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
@@ -36,45 +36,30 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.velocity = 160; // the velocity when moving our player
 
-    this.setDummy(dummy);
     this.prevNoMovement = true;
 
     this.setCollideWorldBounds(true).setOrigin(0);
     scene.events.on('update', this.update, this);
   }
 
-  setDummy(dummy: boolean) {
-    if (dummy) {
-      // this.body.setBounce(1);
-      this.setBounce(1);
-      this.scene.time.addEvent({
-        delay: Phaser.Math.RND.integerInRange(45, 90) * 1000,
-        callback: () => this.kill(),
-      });
-    } else {
-      this.setBounce(0);
-    }
-  }
-
-  kill() {
+  kill(): void {
     this.dead = true;
     this.setActive(false);
   }
 
-  revive(playerId: string, dummy: boolean) {
+  revive(playerId: string, dummy: boolean): void {
     this.playerId = playerId;
     this.dead = false;
     this.setActive(true);
-    this.setDummy(dummy);
     this.setVelocity(0);
   }
 
-  setMove(data: CursorMoviment) {
+  setMove(data: CursorMoviment): void {
     this.move = data;
     this.shouldUpdate = true;
   }
 
-  update() {
+  update(): void {
     if (!this.shouldUpdate) {
       return;
     }
@@ -93,7 +78,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  postUpdate() {
+  postUpdate(): void {
     this.prevPosition = { ...this.body.position };
     this.prevDead = this.dead;
   }
@@ -105,6 +90,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       skin: this.skin,
       id: this.playerId,
       animation: this.animation,
+      hidden: this.dead,
     };
   }
 }

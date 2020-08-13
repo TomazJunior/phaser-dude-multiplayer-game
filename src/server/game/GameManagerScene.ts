@@ -5,15 +5,19 @@ import Map from './components/Map';
 
 import Player from './components/Player';
 import Ground from './components/Ground';
+import Star from './components/Star';
+import { NUMBER_OF_STARS } from '../../constants';
 
 export default class GameManagerScene extends Scene {
   io: GeckosServer;
   players: Phaser.GameObjects.Group;
   ground: Phaser.GameObjects.Group;
+  stars: Phaser.GameObjects.Group;
   map: Map;
-  level: 0;
-  id: 0;
+  level = 0;
+  id = 0;
   tick: number;
+
   constructor() {
     super({ key: 'GameManagerScene' });
   }
@@ -29,6 +33,7 @@ export default class GameManagerScene extends Scene {
   create() {
     this.players = this.add.group();
     this.ground = this.add.group();
+    this.stars = this.add.group();
     this.map = new Map(this, { x: 0 }, this.level);
     this.generateTheLevel();
     this.setupEventListeners();
@@ -61,6 +66,11 @@ export default class GameManagerScene extends Scene {
         // if (row[x] === 'M') this.mummyGroup.add(new Mummy(this, this.newId(), xx, yy));
       }
     });
+
+    const stepX = 70;
+    for (let i = 0; i < NUMBER_OF_STARS; i++) {
+      this.stars.add(new Star(this, this.newId(), 12 + i * stepX, 0));
+    }
   }
   setupEventListeners() {
     this.io.onConnection((channel: ClientChannel) => {
@@ -75,17 +85,25 @@ export default class GameManagerScene extends Scene {
       });
       channel.emit('ready');
       channel.on('newPlayer', () => {
-        this.players.add(new Player(this, channel.id, Phaser.Math.RND.integerInRange(100, 700)));
-        this.io.room().emit(
+        const newPlayer = new Player(this, channel.id, Phaser.Math.RND.integerInRange(100, 700));
+        this.players.add(newPlayer);
+        channel.emit(
           'currentPlayers',
           this.players.children.entries.map((player: Player) => player.getFieldsTobeSync()),
         );
-        this.io.room().emit(
+        channel.emit(
           'currentGround',
           this.ground.children.entries.map((ground: Ground) => {
             return ground.getFieldsTobeSync();
           }),
         );
+        channel.emit(
+          'currentStars',
+          this.stars.children.entries.map((star: Star) => {
+            return star.getFieldsTobeSync();
+          }),
+        );
+        channel.broadcast.emit('spawnPlayer', newPlayer.getFieldsTobeSync());
       });
 
       channel.on('cursorUpdate', (data: CursorMoviment) => {
@@ -100,6 +118,12 @@ export default class GameManagerScene extends Scene {
   addCollisions() {
     // check for collisions between the player and the tiled blocked layer
     this.physics.add.collider(this.players, this.ground);
+    this.physics.add.collider(this.stars, this.ground);
+    this.physics.add.overlap(this.players, this.stars, (player: Player, star: Star) => {
+      star.hide();
+      this.io.emit('starUpdated', star.getFieldsTobeSync());
+      // player.addScore(10);
+    });
   }
 
   getPlayer(playerId: string): Player {
