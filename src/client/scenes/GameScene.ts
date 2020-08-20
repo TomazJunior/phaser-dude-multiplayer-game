@@ -1,9 +1,9 @@
 import { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
-import Cursors from '../components/cursors';
 import { SKINS } from '../../constants';
 import { setPlayerAnimation } from '../components/animations';
+import Cursors from '../components/cursors';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
@@ -58,6 +58,13 @@ export default class GameScene extends Scene {
       });
     });
 
+    this.channel.on('currentBombs', (bombPos: Array<FieldsToBeSync>) => {
+      bombPos.forEach((bomb) => {
+        const sprite = this.add.sprite(bomb.x, bomb.y, bomb.skin.toString()).setOrigin(0.5);
+        this.objects[bomb.id] = sprite;
+      });
+    });
+
     this.channel.on('playerMoved', (playerFields: PlayerFieldsToBeSync) => {
       if (this.objects[playerFields.id]) {
         const player = this.objects[playerFields.id];
@@ -65,14 +72,28 @@ export default class GameScene extends Scene {
         if (playerFields.animation) {
           setPlayerAnimation(player, playerFields.animation);
         }
+        if (playerFields.hidden !== null) player.setVisible(!playerFields.hidden);
+      }
+    });
+
+    this.channel.on('bombMoved', (bombFields: PlayerFieldsToBeSync) => {
+      if (this.objects[bombFields.id]) {
+        const bomb = this.objects[bombFields.id];
+        if (bombFields.hidden !== null) bomb.setVisible(!bombFields.hidden);
+        if (bombFields.x !== null) bomb.x = bombFields.x;
+        if (bombFields.y !== null) bomb.y = bombFields.y;
+      } else {
+        const sprite = this.add.sprite(bombFields.x, bombFields.y, bombFields.skin.toString()).setOrigin(0.5);
+        this.objects[bombFields.id] = sprite;
       }
     });
 
     this.channel.on('starUpdated', (starFields: FieldsToBeSync) => {
       if (this.objects[starFields.id]) {
         const star = this.objects[starFields.id];
-        star.setPosition(starFields.x, starFields.y);
         if (starFields.hidden !== null) star.setVisible(!starFields.hidden);
+        if (starFields.x !== null) star.x = starFields.x;
+        if (starFields.y !== null) star.y = starFields.y;
       }
     });
 

@@ -1,8 +1,8 @@
-import { SKINS, STAR } from '../../../constants';
+import { SKINS } from '../../../constants';
 
-export default class Star extends Phaser.Physics.Arcade.Sprite {
+export default class Bomb extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
-  skin = SKINS.STAR;
+  skin = SKINS.BOMB;
   id: string;
   hidden = false;
   prevHidden = false;
@@ -15,11 +15,11 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
     };
     scene.add.existing(this);
     scene.physics.add.existing(this);
-    this.body.setSize(24, 22);
+    this.body.setSize(14, 14);
     this.scene = scene;
     this.id = id.toString();
-    this.setCollideWorldBounds(true).setOrigin(0);
-    this.setGravityY(STAR.GRAVITY_Y);
+    this.setBounce(1, 1).setCollideWorldBounds(true).setVelocity(Phaser.Math.Between(-200, 200), 20);
+    scene.events.on('update', this.update, this);
   }
 
   getFieldsTobeSync(): FieldsToBeSync {
@@ -32,24 +32,18 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
     };
   }
 
-  unhide(): void {
-    this.body.allowGravity = true;
-    this.setActive(true);
-    this.hidden = false;
+  postUpdate(): void {
+    this.prevPosition = { ...this.body.position };
+    this.prevHidden = this.hidden;
   }
 
   hide(): void {
     this.setActive(false);
     this.hidden = true;
-    // set position when start will be shown in the next level
-    this.setPosition(Phaser.Math.RND.integerInRange(0, 800), 0);
-
-    // disable gravity to keep star in the initial position
-    this.body.allowGravity = false;
   }
 
-  postUpdate(): void {
-    this.prevPosition = { ...this.body.position };
-    this.prevHidden = this.hidden;
+  unhide(): void {
+    this.setActive(true);
+    this.hidden = false;
   }
 }

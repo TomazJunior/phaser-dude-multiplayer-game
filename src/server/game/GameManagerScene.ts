@@ -1,18 +1,21 @@
 import { ClientChannel } from '@geckos.io/client';
 import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
-import Map from './components/Map';
 
-import Player from './components/Player';
+import { STAR } from '../../constants';
+import Bomb from './components/Bomb';
 import Ground from './components/Ground';
+import Map from './components/Map';
+import Player from './components/Player';
 import Star from './components/Star';
-import { NUMBER_OF_STARS } from '../../constants';
 
 export default class GameManagerScene extends Scene {
   io: GeckosServer;
   players: Phaser.GameObjects.Group;
   ground: Phaser.GameObjects.Group;
   stars: Phaser.GameObjects.Group;
+  bombs: Phaser.GameObjects.Group;
+
   map: Map;
   level = 0;
   id = 0;
@@ -34,6 +37,7 @@ export default class GameManagerScene extends Scene {
     this.players = this.add.group();
     this.ground = this.add.group();
     this.stars = this.add.group();
+    this.bombs = this.add.group();
     this.map = new Map(this, { x: 0 }, this.level);
     this.generateTheLevel();
     this.setupEventListeners();
@@ -52,9 +56,30 @@ export default class GameManagerScene extends Scene {
       }
       child.postUpdate();
     });
+
+    this.stars.children.iterate((star: Star) => {
+      star.update();
+      const x = star.prevPosition.x.toFixed(0) !== star.body.position.x.toFixed(0);
+      const y = star.prevPosition.y.toFixed(0) !== star.body.position.y.toFixed(0);
+      if (x || y || star.hidden !== star.prevHidden) {
+        this.io.emit('starUpdated', star.getFieldsTobeSync());
+      }
+      star.postUpdate();
+    });
+
+    this.bombs.children.iterate((bomb: Bomb) => {
+      bomb.update();
+      const x = bomb.prevPosition.x.toFixed(0) !== bomb.body.position.x.toFixed(0);
+      const y = bomb.prevPosition.y.toFixed(0) !== bomb.body.position.y.toFixed(0);
+      if (x || y || bomb.hidden !== bomb.prevHidden) {
+        this.io.emit('bombMoved', bomb.getFieldsTobeSync());
+      }
+      bomb.postUpdate();
+    });
   }
 
   generateTheLevel() {
+    console.log('generateTheLevel called!');
     const level = this.map.getLevel();
     // generate the level
     level.forEach((row, y) => {
@@ -68,7 +93,7 @@ export default class GameManagerScene extends Scene {
     });
 
     const stepX = 70;
-    for (let i = 0; i < NUMBER_OF_STARS; i++) {
+    for (let i = 0; i < STAR.NUMBER_OF_STARS; i++) {
       this.stars.add(new Star(this, this.newId(), 12 + i * stepX, 0));
     }
   }
@@ -103,6 +128,12 @@ export default class GameManagerScene extends Scene {
             return star.getFieldsTobeSync();
           }),
         );
+        channel.emit(
+          'currentBombs',
+          this.bombs.children.entries.map((bomb: Bomb) => {
+            return bomb.getFieldsTobeSync();
+          }),
+        );
         channel.broadcast.emit('spawnPlayer', newPlayer.getFieldsTobeSync());
       });
 
@@ -119,11 +150,39 @@ export default class GameManagerScene extends Scene {
     // check for collisions between the player and the tiled blocked layer
     this.physics.add.collider(this.players, this.ground);
     this.physics.add.collider(this.stars, this.ground);
+    this.physics.add.collider(this.bombs, this.ground);
     this.physics.add.overlap(this.players, this.stars, (player: Player, star: Star) => {
+      if (star.hidden) return;
       star.hide();
-      this.io.emit('starUpdated', star.getFieldsTobeSync());
+      // this.io.emit('starUpdated', star.getFieldsTobeSync());
       // player.addScore(10);
+      if (this.stars.countActive(true) === 0) {
+        this.nextLevel();
+      }
     });
+    this.physics.add.overlap(this.players, this.bombs, (player: Player, bomb: Bomb) => {
+      if (bomb.hidden) return;
+      if (player.dead) return;
+      bomb.hide();
+      player.kill();
+      // player.addScore(10);
+      setTimeout(() => {
+        player.revive();
+      }, 1000);
+    });
+  }
+
+  nextLevel() {
+    console.log('nextlevel!');
+    this.stars.children.iterate((star: Star) => {
+      star.unhide();
+    });
+    const bomb: Bomb = this.bombs.getFirstDead();
+    if (bomb) {
+      bomb.unhide();
+    } else {
+      this.bombs.add(new Bomb(this, this.newId(), 0, 0));
+    }
   }
 
   getPlayer(playerId: string): Player {

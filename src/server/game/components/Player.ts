@@ -1,4 +1,4 @@
-import { SKINS, DUDE_ANIMATIONS } from '../../../constants';
+import { DUDE_ANIMATIONS, SKINS } from '../../../constants';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
@@ -12,7 +12,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   shouldUpdate: boolean;
   velocity: number;
   animation: string;
-  constructor(scene: Phaser.Scene, playerId: string, x = 200, y = 200, dummy = false) {
+  constructor(scene: Phaser.Scene, playerId: string, x = 200, y = 200) {
     super(scene, x, y, '');
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -44,14 +44,19 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   kill(): void {
     this.dead = true;
-    this.setActive(false);
+    this.animation = DUDE_ANIMATIONS.IDLE;
   }
 
-  revive(playerId: string, dummy: boolean): void {
-    this.playerId = playerId;
-    this.dead = false;
-    this.setActive(true);
-    this.setVelocity(0);
+  revive(): void {
+    this.scene.time.addEvent({
+      delay: 1000,
+      callback: () => {
+        this.setPosition(Phaser.Math.RND.integerInRange(0, 800), Phaser.Math.RND.integerInRange(100, 300));
+        this.dead = false;
+        this.setActive(true);
+        this.setVelocity(0);
+      },
+    });
   }
 
   setMove(data: CursorMoviment): void {

@@ -12,5 +12,9 @@ export const DUDE_ANIMATIONS = {
   RIGHT: 'right',
 };
 
-export const NUMBER_OF_STARS = 8;
+export const STAR = {
+  NUMBER_OF_STARS: 8,
+  GRAVITY_Y: -1000,
+};
+
 export const EVENTS = {};
