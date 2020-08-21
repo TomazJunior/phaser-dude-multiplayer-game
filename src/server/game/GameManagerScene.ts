@@ -105,11 +105,11 @@ export default class GameManagerScene extends Scene {
         const currentPlayer = this.getPlayer(channel.id);
         if (currentPlayer) {
           this.players.remove(currentPlayer);
-          this.io.room().emit('disconnect', channel.id);
+          this.io.room().emit(EVENTS.DISCONNECT, channel.id);
         }
       });
-      channel.emit('ready');
-      channel.on('newPlayer', () => {
+      channel.emit(EVENTS.READY);
+      channel.on(EVENTS.NEW_PLAYER, () => {
         const newPlayer = new Player(this, channel.id, Phaser.Math.RND.integerInRange(100, 700));
         this.players.add(newPlayer);
         channel.emit(EVENTS.CURRENT_OBJECTS, {
@@ -118,10 +118,10 @@ export default class GameManagerScene extends Scene {
           stars: this.stars.children.entries.map((star: Star) => star.getFieldsTobeSync()),
           bombs: this.bombs.children.entries.map((bomb: Bomb) => bomb.getFieldsTobeSync()),
         });
-        channel.broadcast.emit('spawnPlayer', newPlayer.getFieldsTobeSync());
+        channel.broadcast.emit(EVENTS.SPAWN_PLAYER, newPlayer.getFieldsTobeSync());
       });
 
-      channel.on('cursorUpdate', (data: CursorMoviment) => {
+      channel.on(EVENTS.CURSOR_UPDATE, (data: CursorMoviment) => {
         const currentPlayer: Player = this.getPlayer(channel.id);
         if (currentPlayer) {
           currentPlayer.setMove(data);

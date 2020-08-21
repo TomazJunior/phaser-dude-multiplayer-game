@@ -55,7 +55,7 @@ export default class GameScene extends Scene {
       });
     });
 
-    this.channel.on('spawnPlayer', (player: PlayerFieldsToBeSync) => {
+    this.channel.on(EVENTS.SPAWN_PLAYER, (player: PlayerFieldsToBeSync) => {
       this.createPlayer(player, false);
     });
 
@@ -91,7 +91,7 @@ export default class GameScene extends Scene {
       }
     });
 
-    this.channel.on('disconnect', (playerId: string) => {
+    this.channel.on(EVENTS.DISCONNECT, (playerId: string) => {
       console.log('disconnect ', playerId);
       if (this.objects[playerId]) {
         this.objects[playerId].destroy(true);
@@ -99,7 +99,7 @@ export default class GameScene extends Scene {
       }
     });
 
-    this.channel.emit('newPlayer');
+    this.channel.emit(EVENTS.NEW_PLAYER);
     this.createInput();
   }
 
@@ -120,7 +120,7 @@ export default class GameScene extends Scene {
 
   createInput() {
     this.cursors = new Cursors(this, (data: any) => {
-      this.channel.emit('cursorUpdate', data);
+      this.channel.emit(EVENTS.CURSOR_UPDATE, data);
     });
   }
 }

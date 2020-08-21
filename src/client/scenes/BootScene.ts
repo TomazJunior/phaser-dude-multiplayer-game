@@ -1,7 +1,7 @@
 import geckos, { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
-import { SKINS } from '../../constants';
+import { SKINS, EVENTS } from '../../constants';
 import { createPlayerAnimations } from '../components/animations';
 
 export default class BootScene extends Scene {
@@ -31,7 +31,7 @@ export default class BootScene extends Scene {
     this.channel.onConnect((error) => {
       if (error) console.error(error.message);
     });
-    this.channel.on('ready', () => {
+    this.channel.on(EVENTS.READY, () => {
       this.scene.start('GameScene', { channel: this.channel });
     });
   }
