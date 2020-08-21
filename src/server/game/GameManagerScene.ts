@@ -47,34 +47,20 @@ export default class GameManagerScene extends Scene {
   update() {
     this.tick++;
     if (this.tick > 1000000) this.tick = 0;
-    this.players.children.iterate((child: Player) => {
+    this.updateGroup(this.players);
+    this.updateGroup(this.stars);
+    this.updateGroup(this.bombs);
+  }
+
+  private updateGroup(group: Phaser.GameObjects.Group) {
+    group.children.iterate((child: Player | Star | Bomb) => {
       child.update();
       const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
       const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
-      if (x || y) {
+      if (x || y || child.hidden !== child.prevHidden) {
         this.io.emit(EVENTS.UPDATE_OBJECTS, child.getFieldsTobeSync());
       }
       child.postUpdate();
-    });
-
-    this.stars.children.iterate((star: Star) => {
-      star.update();
-      const x = star.prevPosition.x.toFixed(0) !== star.body.position.x.toFixed(0);
-      const y = star.prevPosition.y.toFixed(0) !== star.body.position.y.toFixed(0);
-      if (x || y || star.hidden !== star.prevHidden) {
-        this.io.emit(EVENTS.UPDATE_OBJECTS, star.getFieldsTobeSync());
-      }
-      star.postUpdate();
-    });
-
-    this.bombs.children.iterate((bomb: Bomb) => {
-      bomb.update();
-      const x = bomb.prevPosition.x.toFixed(0) !== bomb.body.position.x.toFixed(0);
-      const y = bomb.prevPosition.y.toFixed(0) !== bomb.body.position.y.toFixed(0);
-      if (x || y || bomb.hidden !== bomb.prevHidden) {
-        this.io.emit(EVENTS.UPDATE_OBJECTS, bomb.getFieldsTobeSync());
-      }
-      bomb.postUpdate();
     });
   }
 
@@ -146,7 +132,7 @@ export default class GameManagerScene extends Scene {
     });
     this.physics.add.overlap(this.players, this.bombs, (player: Player, bomb: Bomb) => {
       if (bomb.hidden) return;
-      if (player.dead) return;
+      if (player.hidden) return;
       bomb.hide();
       player.kill();
       // player.addScore(10);

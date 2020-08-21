@@ -4,8 +4,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
   skin = SKINS.DUDE;
   prevPosition: { x: number; y: number };
-  dead: boolean;
-  prevDead: boolean;
+  hidden: boolean;
+  prevHidden: boolean;
   playerId: string;
   move: CursorMoviment;
   prevNoMovement: boolean;
@@ -19,12 +19,12 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.body.setSize(32, 48);
     this.scene = scene;
-    this.dead = false;
+    this.hidden = false;
     this.prevPosition = {
       x: -1,
       y: -1,
     };
-    this.prevDead = false;
+    this.prevHidden = false;
 
     this.playerId = playerId;
     this.move = {
@@ -43,7 +43,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   kill(): void {
-    this.dead = true;
+    this.hidden = true;
     this.animation = DUDE_ANIMATIONS.IDLE;
   }
 
@@ -52,7 +52,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       delay: 1000,
       callback: () => {
         this.setPosition(Phaser.Math.RND.integerInRange(0, 800), Phaser.Math.RND.integerInRange(100, 300));
-        this.dead = false;
+        this.hidden = false;
         this.setActive(true);
         this.setVelocity(0);
       },
@@ -85,7 +85,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
   postUpdate(): void {
     this.prevPosition = { ...this.body.position };
-    this.prevDead = this.dead;
+    this.prevHidden = this.hidden;
   }
 
   getFieldsTobeSync(): PlayerFieldsToBeSync {
@@ -95,7 +95,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       skin: this.skin,
       id: this.playerId,
       animation: this.animation,
-      hidden: this.dead,
+      hidden: this.hidden,
     };
   }
 }
