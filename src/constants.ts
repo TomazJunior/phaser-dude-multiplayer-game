@@ -23,5 +23,6 @@ export const EVENTS = {
   DISCONNECT: 'disconnect',
   NEW_PLAYER: 'NEW_PLAYER',
   READY: 'ready',
+  UPDATE_OBJECTS: 'UPDATE_OBJECTS',
   SPAWN_PLAYER: 'SPAWN_PLAYER',
 };

@@ -7,15 +7,12 @@ declare namespace Phaser {
 interface CurrentObjects {
   players: Array<PlayerFieldsToBeSync>;
   ground: Array<BaseFieldsToBeSync>;
-  stars: Array<FieldsToBeSync>;
-  bombs: Array<FieldsToBeSync>;
+  stars: Array<BaseFieldsToBeSync>;
+  bombs: Array<BaseFieldsToBeSync>;
 }
 
-interface PlayerFieldsToBeSync extends FieldsToBeSync {
+interface PlayerFieldsToBeSync extends BaseFieldsToBeSync {
   animation: string;
-}
-interface FieldsToBeSync extends BaseFieldsToBeSync {
-  hidden: boolean;
 }
 
 interface BaseFieldsToBeSync {
@@ -23,6 +20,7 @@ interface BaseFieldsToBeSync {
   y: number;
   skin: number;
   id: string;
+  hidden: boolean;
 }
 
 interface CursorMoviment {

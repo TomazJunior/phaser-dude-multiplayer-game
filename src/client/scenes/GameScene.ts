@@ -59,35 +59,21 @@ export default class GameScene extends Scene {
       this.createPlayer(player, false);
     });
 
-    this.channel.on('playerMoved', (playerFields: PlayerFieldsToBeSync) => {
-      if (this.objects[playerFields.id]) {
-        const player = this.objects[playerFields.id];
-        player.setPosition(playerFields.x, playerFields.y);
-        if (playerFields.animation) {
-          setPlayerAnimation(player, playerFields.animation);
+    this.channel.on(EVENTS.UPDATE_OBJECTS, (object: PlayerFieldsToBeSync | BaseFieldsToBeSync) => {
+      if (this.objects[object.id]) {
+        const sprite = this.objects[object.id];
+        if (object.hidden !== null) sprite.setVisible(!object.hidden);
+        if (object.x !== null) sprite.x = object.x;
+        if (object.y !== null) sprite.y = object.y;
+        if (object.skin === SKINS.DUDE) {
+          if ((<PlayerFieldsToBeSync>object).animation !== null) {
+            setPlayerAnimation(sprite, (<PlayerFieldsToBeSync>object).animation);
+          }
         }
-        if (playerFields.hidden !== null) player.setVisible(!playerFields.hidden);
-      }
-    });
-
-    this.channel.on('bombMoved', (bombFields: PlayerFieldsToBeSync) => {
-      if (this.objects[bombFields.id]) {
-        const bomb = this.objects[bombFields.id];
-        if (bombFields.hidden !== null) bomb.setVisible(!bombFields.hidden);
-        if (bombFields.x !== null) bomb.x = bombFields.x;
-        if (bombFields.y !== null) bomb.y = bombFields.y;
+        if (object.hidden !== null) sprite.setVisible(!object.hidden);
       } else {
-        const sprite = this.add.sprite(bombFields.x, bombFields.y, bombFields.skin.toString()).setOrigin(0.5);
-        this.objects[bombFields.id] = sprite;
-      }
-    });
-
-    this.channel.on('starUpdated', (starFields: FieldsToBeSync) => {
-      if (this.objects[starFields.id]) {
-        const star = this.objects[starFields.id];
-        if (starFields.hidden !== null) star.setVisible(!starFields.hidden);
-        if (starFields.x !== null) star.x = starFields.x;
-        if (starFields.y !== null) star.y = starFields.y;
+        const sprite = this.add.sprite(object.x, object.y, object.skin.toString()).setOrigin(0.5);
+        this.objects[object.id] = sprite;
       }
     });
 

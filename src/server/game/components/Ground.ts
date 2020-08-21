@@ -18,6 +18,7 @@ export default class Ground extends Phaser.Physics.Arcade.Sprite {
       x: this.body.position.x + this.body.width / 2,
       y: this.body.position.y + this.body.height / 2,
       skin: this.skin,
+      hidden: null,
     };
   }
 }

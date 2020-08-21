@@ -22,7 +22,7 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
     this.setGravityY(STAR.GRAVITY_Y);
   }
 
-  getFieldsTobeSync(): FieldsToBeSync {
+  getFieldsTobeSync(): BaseFieldsToBeSync {
     return {
       x: this.body.position.x + this.body.width / 2,
       y: this.body.position.y + this.body.height / 2,

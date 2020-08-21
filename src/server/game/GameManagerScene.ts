@@ -52,7 +52,7 @@ export default class GameManagerScene extends Scene {
       const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
       const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
       if (x || y) {
-        this.io.emit('playerMoved', child.getFieldsTobeSync());
+        this.io.emit(EVENTS.UPDATE_OBJECTS, child.getFieldsTobeSync());
       }
       child.postUpdate();
     });
@@ -62,7 +62,7 @@ export default class GameManagerScene extends Scene {
       const x = star.prevPosition.x.toFixed(0) !== star.body.position.x.toFixed(0);
       const y = star.prevPosition.y.toFixed(0) !== star.body.position.y.toFixed(0);
       if (x || y || star.hidden !== star.prevHidden) {
-        this.io.emit('starUpdated', star.getFieldsTobeSync());
+        this.io.emit(EVENTS.UPDATE_OBJECTS, star.getFieldsTobeSync());
       }
       star.postUpdate();
     });
@@ -72,7 +72,7 @@ export default class GameManagerScene extends Scene {
       const x = bomb.prevPosition.x.toFixed(0) !== bomb.body.position.x.toFixed(0);
       const y = bomb.prevPosition.y.toFixed(0) !== bomb.body.position.y.toFixed(0);
       if (x || y || bomb.hidden !== bomb.prevHidden) {
-        this.io.emit('bombMoved', bomb.getFieldsTobeSync());
+        this.io.emit(EVENTS.UPDATE_OBJECTS, bomb.getFieldsTobeSync());
       }
       bomb.postUpdate();
     });
