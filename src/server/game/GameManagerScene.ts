@@ -2,7 +2,7 @@ import { ClientChannel } from '@geckos.io/client';
 import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
-import { STAR } from '../../constants';
+import { STAR, EVENTS } from '../../constants';
 import Bomb from './components/Bomb';
 import Ground from './components/Ground';
 import Map from './components/Map';
@@ -112,28 +112,12 @@ export default class GameManagerScene extends Scene {
       channel.on('newPlayer', () => {
         const newPlayer = new Player(this, channel.id, Phaser.Math.RND.integerInRange(100, 700));
         this.players.add(newPlayer);
-        channel.emit(
-          'currentPlayers',
-          this.players.children.entries.map((player: Player) => player.getFieldsTobeSync()),
-        );
-        channel.emit(
-          'currentGround',
-          this.ground.children.entries.map((ground: Ground) => {
-            return ground.getFieldsTobeSync();
-          }),
-        );
-        channel.emit(
-          'currentStars',
-          this.stars.children.entries.map((star: Star) => {
-            return star.getFieldsTobeSync();
-          }),
-        );
-        channel.emit(
-          'currentBombs',
-          this.bombs.children.entries.map((bomb: Bomb) => {
-            return bomb.getFieldsTobeSync();
-          }),
-        );
+        channel.emit(EVENTS.CURRENT_OBJECTS, {
+          players: this.players.children.entries.map((player: Player) => player.getFieldsTobeSync()),
+          ground: this.ground.children.entries.map((ground: Ground) => ground.getFieldsTobeSync()),
+          stars: this.stars.children.entries.map((star: Star) => star.getFieldsTobeSync()),
+          bombs: this.bombs.children.entries.map((bomb: Bomb) => bomb.getFieldsTobeSync()),
+        });
         channel.broadcast.emit('spawnPlayer', newPlayer.getFieldsTobeSync());
       });
 

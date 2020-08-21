@@ -4,6 +4,13 @@ declare namespace Phaser {
   }
 }
 
+interface CurrentObjects {
+  players: Array<PlayerFieldsToBeSync>;
+  ground: Array<BaseFieldsToBeSync>;
+  stars: Array<FieldsToBeSync>;
+  bombs: Array<FieldsToBeSync>;
+}
+
 interface PlayerFieldsToBeSync extends FieldsToBeSync {
   animation: string;
 }

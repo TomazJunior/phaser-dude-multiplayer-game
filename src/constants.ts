@@ -17,4 +17,6 @@ export const STAR = {
   GRAVITY_Y: -1000,
 };
 
-export const EVENTS = {};
+export const EVENTS = {
+  CURRENT_OBJECTS: 'CURRENT_OBJECTS',
+};

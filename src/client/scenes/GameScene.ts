@@ -1,7 +1,7 @@
 import { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
-import { SKINS } from '../../constants';
+import { SKINS, EVENTS } from '../../constants';
 import { setPlayerAnimation } from '../components/animations';
 import Cursors from '../components/cursors';
 
@@ -26,8 +26,18 @@ export default class GameScene extends Scene {
   }
 
   listenToChannel() {
-    this.channel.on('currentPlayers', (players: Array<PlayerFieldsToBeSync>) => {
-      players
+    this.channel.on(EVENTS.CURRENT_OBJECTS, (objects: CurrentObjects) => {
+      objects.bombs.forEach((bomb) => {
+        const sprite = this.add.sprite(bomb.x, bomb.y, bomb.skin.toString()).setOrigin(0.5);
+        this.objects[bomb.id] = sprite;
+      });
+
+      objects.ground.forEach((ground) => {
+        const sprite = this.add.sprite(ground.x, ground.y, ground.skin.toString()).setOrigin(0.5);
+        this.objects[ground.id] = sprite;
+      });
+
+      objects.players
         .filter((player) => {
           return !this.objects[player.id];
         })
@@ -38,31 +48,15 @@ export default class GameScene extends Scene {
             this.createPlayer(player, false);
           }
         });
-    });
 
-    this.channel.on('spawnPlayer', (player: PlayerFieldsToBeSync) => {
-      this.createPlayer(player, false);
-    });
-
-    this.channel.on('currentGround', (groundPos: Array<BaseFieldsToBeSync>) => {
-      groundPos.forEach((ground) => {
-        const sprite = this.add.sprite(ground.x, ground.y, ground.skin.toString()).setOrigin(0.5);
-        this.objects[ground.id] = sprite;
-      });
-    });
-
-    this.channel.on('currentStars', (starPos: Array<FieldsToBeSync>) => {
-      starPos.forEach((star) => {
+      objects.stars.forEach((star) => {
         const sprite = this.add.sprite(star.x, star.y, star.skin.toString()).setOrigin(0.5);
         this.objects[star.id] = sprite;
       });
     });
 
-    this.channel.on('currentBombs', (bombPos: Array<FieldsToBeSync>) => {
-      bombPos.forEach((bomb) => {
-        const sprite = this.add.sprite(bomb.x, bomb.y, bomb.skin.toString()).setOrigin(0.5);
-        this.objects[bomb.id] = sprite;
-      });
+    this.channel.on('spawnPlayer', (player: PlayerFieldsToBeSync) => {
+      this.createPlayer(player, false);
     });
 
     this.channel.on('playerMoved', (playerFields: PlayerFieldsToBeSync) => {
