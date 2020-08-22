@@ -1,20 +1,20 @@
 import { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
-import { SKINS, EVENTS } from '../../constants';
+import { SKINS, EVENTS, PLAYER } from '../../constants';
 import { setPlayerAnimation } from '../components/animations';
 import Cursors from '../components/cursors';
+import Heart from '../components/Heart';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
   channel: ClientChannel;
-  playerId: number;
   player: Phaser.GameObjects.Sprite;
+  hearts: Phaser.GameObjects.Group;
   cursors: Cursors;
   constructor() {
     super({ key: 'GameScene' });
     this.objects = {};
-    this.playerId;
   }
 
   init({ channel }: { channel: ClientChannel }) {
@@ -22,19 +22,18 @@ export default class GameScene extends Scene {
   }
 
   create() {
+    this.hearts = this.add.group();
     this.listenToChannel();
   }
 
   listenToChannel() {
     this.channel.on(EVENTS.CURRENT_OBJECTS, (objects: CurrentObjects) => {
-      objects.bombs.forEach((bomb) => {
-        const sprite = this.add.sprite(bomb.x, bomb.y, bomb.skin.toString()).setOrigin(0.5);
-        this.objects[bomb.id] = sprite;
-      });
-
-      objects.ground.forEach((ground) => {
-        const sprite = this.add.sprite(ground.x, ground.y, ground.skin.toString()).setOrigin(0.5);
-        this.objects[ground.id] = sprite;
+      [...objects.bombs, ...objects.stars, ...objects.ground].forEach((object) => {
+        if (!this.objects[object.id]) {
+          const sprite = this.add.sprite(object.x, object.y, object.skin.toString()).setOrigin(0.5);
+          this.objects[object.id] = sprite;
+          if (object.hidden !== null) sprite.setVisible(!object.hidden);
+        }
       });
 
       objects.players
@@ -42,17 +41,8 @@ export default class GameScene extends Scene {
           return !this.objects[player.id];
         })
         .forEach((player) => {
-          if (player.id === this.channel.id) {
-            this.createPlayer(player, true);
-          } else {
-            this.createPlayer(player, false);
-          }
+          this.createPlayer(player, player.id === this.channel.id);
         });
-
-      objects.stars.forEach((star) => {
-        const sprite = this.add.sprite(star.x, star.y, star.skin.toString()).setOrigin(0.5);
-        this.objects[star.id] = sprite;
-      });
     });
 
     this.channel.on(EVENTS.SPAWN_PLAYER, (player: PlayerFieldsToBeSync) => {
@@ -66,9 +56,7 @@ export default class GameScene extends Scene {
         if (object.x !== null) sprite.x = object.x;
         if (object.y !== null) sprite.y = object.y;
         if (object.skin === SKINS.DUDE) {
-          if ((<PlayerFieldsToBeSync>object).animation !== null) {
-            setPlayerAnimation(sprite, (<PlayerFieldsToBeSync>object).animation);
-          }
+          this.updateDudeObjects(<PlayerFieldsToBeSync>object, sprite, object.id === this.channel.id);
         }
         if (object.hidden !== null) sprite.setVisible(!object.hidden);
       } else {
@@ -89,14 +77,44 @@ export default class GameScene extends Scene {
     this.createInput();
   }
 
+  private updateDudeObjects(player: PlayerFieldsToBeSync, sprite: Phaser.GameObjects.Sprite, mainPlayer: boolean) {
+    if (player.animation !== null) {
+      setPlayerAnimation(sprite, player.animation);
+    }
+    if (player.alpha !== null) {
+      sprite.setAlpha(player.alpha);
+    }
+    if (mainPlayer && this.hearts && player.life !== null) {
+      if (this.hearts.countActive() !== player.life) {
+        const heart = <Heart>this.hearts.children
+          .getArray()
+          .reverse()
+          .find((heart) => heart.active);
+        if (heart) {
+          heart.hide();
+        }
+      }
+    }
+  }
+
   createPlayer(playerFields: PlayerFieldsToBeSync, mainPlayer: boolean) {
     if (!this.objects[playerFields.id]) {
-      const player = this.add.sprite(playerFields.x, playerFields.y, SKINS.DUDE.toString()).setOrigin(0.5);
+      const sprite = this.add.sprite(playerFields.x, playerFields.y, SKINS.DUDE.toString()).setOrigin(0.5);
       if (mainPlayer) {
-        this.player = player;
-        setPlayerAnimation(player, playerFields.animation);
+        this.player = sprite;
+        this.createHearts();
+        setPlayerAnimation(this.player, playerFields.animation);
       }
-      this.objects[playerFields.id] = player;
+
+      this.objects[playerFields.id] = sprite;
+      if (playerFields.hidden !== null) sprite.setVisible(!playerFields.hidden);
+    }
+  }
+
+  private createHearts() {
+    const heartStepX = 50;
+    for (let i = 0; i < PLAYER.MAX_LIFE; i++) {
+      this.hearts.add(new Heart(this, i, 48 / 2 + i * heartStepX, 48 / 2));
     }
   }
 

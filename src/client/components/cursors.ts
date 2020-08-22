@@ -37,7 +37,6 @@ export default class Cursors {
         this.up = true;
       }
 
-      console.log('call emit');
       this.emit({ left: this.left, right: this.right, up: this.up, none: this.none });
     }
 

@@ -11,10 +11,11 @@ import Star from './components/Star';
 
 export default class GameManagerScene extends Scene {
   io: GeckosServer;
-  players: Phaser.GameObjects.Group;
-  ground: Phaser.GameObjects.Group;
-  stars: Phaser.GameObjects.Group;
   bombs: Phaser.GameObjects.Group;
+  ground: Phaser.GameObjects.Group;
+  // hearts: Phaser.GameObjects.Group;
+  players: Phaser.GameObjects.Group;
+  stars: Phaser.GameObjects.Group;
 
   map: Map;
   level = 0;
@@ -40,6 +41,7 @@ export default class GameManagerScene extends Scene {
     this.bombs = this.add.group();
     this.map = new Map(this, { x: 0 }, this.level);
     this.generateTheLevel();
+    this.bombs.add(new Bomb(this, this.newId(), 0, 0));
     this.setupEventListeners();
     this.addCollisions();
   }
@@ -57,7 +59,8 @@ export default class GameManagerScene extends Scene {
       child.update();
       const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
       const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
-      if (x || y || child.hidden !== child.prevHidden) {
+      const hidden = child.prevHidden !== child.hidden;
+      if (x || y || hidden) {
         this.io.emit(EVENTS.UPDATE_OBJECTS, child.getFieldsTobeSync());
       }
       child.postUpdate();
@@ -78,11 +81,12 @@ export default class GameManagerScene extends Scene {
       }
     });
 
-    const stepX = 70;
+    const startStepX = 70;
     for (let i = 0; i < STAR.NUMBER_OF_STARS; i++) {
-      this.stars.add(new Star(this, this.newId(), 12 + i * stepX, 0));
+      this.stars.add(new Star(this, this.newId(), 12 + i * startStepX, 0));
     }
   }
+
   setupEventListeners() {
     this.io.onConnection((channel: ClientChannel) => {
       console.log('Connect user ' + channel.id);
@@ -123,6 +127,7 @@ export default class GameManagerScene extends Scene {
     this.physics.add.collider(this.bombs, this.ground);
     this.physics.add.overlap(this.players, this.stars, (player: Player, star: Star) => {
       if (star.hidden) return;
+      if (player.hidden || player.hit) return;
       star.hide();
       // this.io.emit('starUpdated', star.getFieldsTobeSync());
       // player.addScore(10);
@@ -132,13 +137,8 @@ export default class GameManagerScene extends Scene {
     });
     this.physics.add.overlap(this.players, this.bombs, (player: Player, bomb: Bomb) => {
       if (bomb.hidden) return;
-      if (player.hidden) return;
-      bomb.hide();
-      player.kill();
-      // player.addScore(10);
-      setTimeout(() => {
-        player.revive();
-      }, 1000);
+      if (player.hidden || player.hit) return;
+      player.gotHit();
     });
   }
 

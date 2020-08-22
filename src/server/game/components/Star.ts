@@ -28,7 +28,7 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
       y: this.body.position.y + this.body.height / 2,
       skin: this.skin,
       id: this.id,
-      hidden: this.hidden !== this.prevHidden ? this.hidden : null,
+      hidden: this.hidden,
     };
   }
 

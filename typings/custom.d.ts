@@ -13,6 +13,9 @@ interface CurrentObjects {
 
 interface PlayerFieldsToBeSync extends BaseFieldsToBeSync {
   animation: string;
+  hit: boolean;
+  alpha: number;
+  life: number;
 }
 
 interface BaseFieldsToBeSync {

@@ -1,4 +1,4 @@
-import { DUDE_ANIMATIONS, SKINS } from '../../../constants';
+import { DUDE_ANIMATIONS, SKINS, PLAYER } from '../../../constants';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
@@ -12,6 +12,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   shouldUpdate: boolean;
   velocity: number;
   animation: string;
+  hit = false;
+  alpha = 1;
+  life = PLAYER.MAX_LIFE;
   constructor(scene: Phaser.Scene, playerId: string, x = 200, y = 200) {
     super(scene, x, y, '');
     scene.add.existing(this);
@@ -40,6 +43,24 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
 
     this.setCollideWorldBounds(true).setOrigin(0);
     scene.events.on('update', this.update, this);
+  }
+
+  gotHit() {
+    if (this.hit) return;
+    this.life--;
+    if (this.life === 0) {
+      this.kill();
+      return;
+    }
+    this.hit = true;
+    this.alpha = 0.6;
+    this.scene.time.addEvent({
+      delay: 3000,
+      callback: () => {
+        this.hit = false;
+        this.alpha = 1;
+      },
+    });
   }
 
   kill(): void {
@@ -96,6 +117,9 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       id: this.playerId,
       animation: this.animation,
       hidden: this.hidden,
+      hit: this.hit,
+      alpha: this.alpha,
+      life: this.life,
     };
   }
 }

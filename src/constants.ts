@@ -4,6 +4,7 @@ export const SKINS = {
   BOMB: 2,
   PLATFORM: 4,
   GROUND: 5,
+  HEART: 6,
 };
 
 export const DUDE_ANIMATIONS = {
@@ -15,6 +16,10 @@ export const DUDE_ANIMATIONS = {
 export const STAR = {
   NUMBER_OF_STARS: 8,
   GRAVITY_Y: -1000,
+};
+
+export const PLAYER = {
+  MAX_LIFE: 3,
 };
 
 export const EVENTS = {
