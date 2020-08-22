@@ -1,16 +1,19 @@
 import { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
-import { SKINS, EVENTS, PLAYER } from '../../constants';
+import { SKINS, EVENTS, PLAYER, HEART, GAME, COLORS } from '../../constants';
 import { setPlayerAnimation } from '../components/animations';
 import Cursors from '../components/cursors';
 import Heart from '../components/Heart';
+import ScoreText from '../components/ScoreText';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
   channel: ClientChannel;
   player: Phaser.GameObjects.Sprite;
   hearts: Phaser.GameObjects.Group;
+  scoreText: ScoreText;
+  hiScoreText: ScoreText;
   cursors: Cursors;
   constructor() {
     super({ key: 'GameScene' });
@@ -23,6 +26,9 @@ export default class GameScene extends Scene {
 
   create() {
     this.hearts = this.add.group();
+    this.scoreText = new ScoreText(this, 15, HEART.HEIGHT);
+    this.hiScoreText = new ScoreText(this, GAME.WIDTH - 170, HEART.HEIGHT / 2, 'HI-SCORE ');
+
     this.listenToChannel();
   }
 
@@ -84,19 +90,35 @@ export default class GameScene extends Scene {
     if (player.alpha !== null) {
       sprite.setAlpha(player.alpha);
     }
-    if (mainPlayer && this.hearts && player.life !== null) {
-      if (this.hearts.countActive() !== player.life) {
-        const heart = <Heart>this.hearts.children
-          .getArray()
-          .reverse()
-          .find((heart) => heart.active);
-        if (heart) {
-          heart.hide();
+    if (mainPlayer) {
+      if (player.score) {
+        this.scoreText.setScore(player.score);
+      }
+      if (this.hearts && player.life !== null) {
+        if (this.hearts.countActive() !== player.life) {
+          const heart = <Heart>this.hearts.children
+            .getArray()
+            .reverse()
+            .find((heart) => heart.active);
+          if (heart) {
+            heart.hide();
+          }
         }
       }
     }
+    this.updateHiScore(player.score);
   }
 
+  updateHiScore(score: number): void {
+    if (score && score > this.hiScoreText.getScore()) {
+      this.hiScoreText.setScore(score);
+    }
+    if (this.hiScoreText.getScore() > this.scoreText.getScore()) {
+      this.hiScoreText.setTint(COLORS.RED);
+    } else {
+      this.hiScoreText.setTint(COLORS.BLUE);
+    }
+  }
   createPlayer(playerFields: PlayerFieldsToBeSync, mainPlayer: boolean) {
     if (!this.objects[playerFields.id]) {
       const sprite = this.add.sprite(playerFields.x, playerFields.y, SKINS.DUDE.toString()).setOrigin(0.5);
@@ -112,9 +134,9 @@ export default class GameScene extends Scene {
   }
 
   private createHearts() {
-    const heartStepX = 50;
+    const halfHeart = HEART.HEIGHT / 2;
     for (let i = 0; i < PLAYER.MAX_LIFE; i++) {
-      this.hearts.add(new Heart(this, i, 48 / 2 + i * heartStepX, 48 / 2));
+      this.hearts.add(new Heart(this, i, halfHeart + i * HEART.STEP_X, halfHeart));
     }
   }
 

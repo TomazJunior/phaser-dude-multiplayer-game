@@ -41,7 +41,6 @@ export default class GameManagerScene extends Scene {
     this.bombs = this.add.group();
     this.map = new Map(this, { x: 0 }, this.level);
     this.generateTheLevel();
-    this.bombs.add(new Bomb(this, this.newId(), 0, 0));
     this.setupEventListeners();
     this.addCollisions();
   }
@@ -129,8 +128,8 @@ export default class GameManagerScene extends Scene {
       if (star.hidden) return;
       if (player.hidden || player.hit) return;
       star.hide();
-      // this.io.emit('starUpdated', star.getFieldsTobeSync());
-      // player.addScore(10);
+      player.addScore();
+
       if (this.stars.countActive(true) === 0) {
         this.nextLevel();
       }

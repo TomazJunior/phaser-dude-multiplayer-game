@@ -1,12 +1,13 @@
 import GameManagerScene from './GameManagerScene';
 
 import 'phaser';
+import { GAME } from '../../constants';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.HEADLESS,
   parent: 'phaser-game',
-  width: 800,
-  height: 600,
+  width: GAME.WIDTH,
+  height: GAME.HEIGHT,
   banner: false,
   audio: {
     noAudio: true,

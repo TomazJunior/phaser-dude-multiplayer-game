@@ -1,5 +1,6 @@
 import BootScene from './scenes/BootScene';
 import GameScene from './scenes/GameScene';
+import { GAME } from '../constants';
 
 const config = {
   type: Phaser.AUTO,
@@ -8,8 +9,8 @@ const config = {
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 800,
-    height: 600,
+    width: GAME.WIDTH,
+    height: GAME.HEIGHT,
   },
   physics: {
     default: 'arcade',

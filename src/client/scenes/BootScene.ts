@@ -18,6 +18,8 @@ export default class BootScene extends Scene {
     this.load.image(SKINS.STAR.toString(), 'star.png');
     this.load.image(SKINS.BOMB.toString(), 'bomb.png');
     this.load.image(SKINS.HEART.toString(), 'heart.png');
+    this.load.image(SKINS.HEART_EMPTY.toString(), 'heart_empty.png');
+
     this.load.image('controls', 'controls.png');
 
     this.load.spritesheet(SKINS.DUDE.toString(), 'dude.png', {

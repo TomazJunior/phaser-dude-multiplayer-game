@@ -5,6 +5,7 @@ export const SKINS = {
   PLATFORM: 4,
   GROUND: 5,
   HEART: 6,
+  HEART_EMPTY: 7,
 };
 
 export const DUDE_ANIMATIONS = {
@@ -20,6 +21,23 @@ export const STAR = {
 
 export const PLAYER = {
   MAX_LIFE: 3,
+};
+
+export const HEART = {
+  HEIGHT: 48,
+  WIDTH: 48,
+  STEP_X: 35,
+};
+
+export const GAME = {
+  WIDTH: 800,
+  HEIGHT: 600,
+};
+
+export const COLORS = {
+  BLACK: 0x000000,
+  BLUE: 0x0800ff,
+  RED: 0xff0000,
 };
 
 export const EVENTS = {

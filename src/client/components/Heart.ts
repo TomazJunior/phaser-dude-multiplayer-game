@@ -15,12 +15,12 @@ export default class Heart extends Phaser.Physics.Arcade.Sprite {
   hide(): void {
     this.setActive(false);
     this.hidden = true;
-    this.setVisible(false);
+    this.setTexture(SKINS.HEART_EMPTY.toString());
   }
 
   unhide(): void {
     this.setActive(true);
     this.hidden = false;
-    this.setVisible(true);
+    this.setTexture(SKINS.HEART.toString());
   }
 }

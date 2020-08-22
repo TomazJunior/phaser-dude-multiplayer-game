@@ -15,6 +15,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   hit = false;
   alpha = 1;
   life = PLAYER.MAX_LIFE;
+  score = 0;
   constructor(scene: Phaser.Scene, playerId: string, x = 200, y = 200) {
     super(scene, x, y, '');
     scene.add.existing(this);
@@ -61,6 +62,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.alpha = 1;
       },
     });
+  }
+
+  addScore() {
+    this.score += 10;
   }
 
   kill(): void {
@@ -120,6 +125,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       hit: this.hit,
       alpha: this.alpha,
       life: this.life,
+      score: this.score,
     };
   }
 }

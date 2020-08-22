@@ -16,6 +16,7 @@ interface PlayerFieldsToBeSync extends BaseFieldsToBeSync {
   hit: boolean;
   alpha: number;
   life: number;
+  score: number;
 }
 
 interface BaseFieldsToBeSync {
