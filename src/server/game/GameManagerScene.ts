@@ -1,4 +1,6 @@
 import { ClientChannel } from '@geckos.io/client';
+import * as Types from '@geckos.io/common/lib/types';
+
 import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
@@ -8,6 +10,12 @@ import Ground from './components/Ground';
 import Map from './components/Map';
 import Player from './components/Player';
 import Star from './components/Star';
+
+interface ServerChannel extends ClientChannel {
+  broadcast: {
+    emit(eventName: Types.EventName, data?: Types.Data | null, options?: Types.EmitOptions): void;
+  };
+}
 
 export default class GameManagerScene extends Scene {
   io: GeckosServer;
@@ -26,7 +34,7 @@ export default class GameManagerScene extends Scene {
     super({ key: 'GameManagerScene' });
   }
 
-  init() {
+  init(): void {
     console.log('process.env.NODE_ENV', process.env.NODE_ENV);
     this.io = geckos({
       iceServers: process.env.NODE_ENV === 'production' ? iceServers : [],
@@ -34,7 +42,7 @@ export default class GameManagerScene extends Scene {
     this.io.addServer(this.game.server);
   }
 
-  create() {
+  create(): void {
     this.players = this.add.group();
     this.ground = this.add.group();
     this.stars = this.add.group();
@@ -45,7 +53,7 @@ export default class GameManagerScene extends Scene {
     this.addCollisions();
   }
 
-  update() {
+  update(): void {
     if (this.isGameOver) return;
     this.tick++;
     if (this.tick > 1000000) this.tick = 0;
@@ -83,7 +91,7 @@ export default class GameManagerScene extends Scene {
     });
   }
 
-  generateTheLevel() {
+  private generateTheLevel() {
     console.log('generateTheLevel called!');
     const level = this.map.getLevel();
     // generate the level
@@ -101,8 +109,8 @@ export default class GameManagerScene extends Scene {
     }
   }
 
-  setupEventListeners() {
-    this.io.onConnection((channel: ClientChannel) => {
+  private setupEventListeners() {
+    this.io.onConnection((channel: ServerChannel) => {
       console.log('Connect user ' + channel.id);
       channel.onDisconnect(() => {
         console.log('Disconnect user ' + channel.id);
@@ -126,7 +134,7 @@ export default class GameManagerScene extends Scene {
     });
   }
 
-  private createPlayer(channel: ClientChannel) {
+  private createPlayer(channel: ServerChannel) {
     const newPlayer = new Player(this, channel.id, Phaser.Math.RND.integerInRange(100, 700));
     this.players.add(newPlayer);
     channel.emit(EVENTS.CURRENT_OBJECTS, {
@@ -139,7 +147,7 @@ export default class GameManagerScene extends Scene {
     this.gameStarted = true;
   }
 
-  addCollisions() {
+  private addCollisions() {
     // check for collisions between the player and the tiled blocked layer
     this.physics.add.collider(this.players, this.ground);
     this.physics.add.collider(this.stars, this.ground);
@@ -161,7 +169,7 @@ export default class GameManagerScene extends Scene {
     });
   }
 
-  nextLevel() {
+  private nextLevel() {
     console.log('nextlevel!');
     this.stars.children.iterate((star: Star) => {
       star.unhide();
@@ -174,14 +182,14 @@ export default class GameManagerScene extends Scene {
     }
   }
 
-  getPlayer(playerId: string): Player {
+  private getPlayer(playerId: string): Player {
     return <Player>this.players.getChildren().find((p: Player) => {
       return p.playerId === playerId;
     });
   }
 
   /** Create a new object id */
-  newId() {
+  private newId() {
     return this.id++;
   }
 }
