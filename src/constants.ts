@@ -15,12 +15,12 @@ export const DUDE_ANIMATIONS = {
 };
 
 export const STAR = {
-  NUMBER_OF_STARS: 8,
+  NUMBER_OF_STARS: 10,
   GRAVITY_Y: -1000,
 };
 
 export const PLAYER = {
-  MAX_LIFE: 3,
+  MAX_LIFE: 5,
 };
 
 export const HEART = {

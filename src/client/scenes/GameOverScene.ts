@@ -22,7 +22,7 @@ export default class GameOverScene extends Scene {
     this.playersResult = playersResult;
   }
 
-  create() {
+  create(): void {
     this.texts = this.add.group();
     this.texts.add(new MenuText(this, this.posX, this.posY, 'Score Ranking', COLORS.BLACK, 56));
     this.newLine(2);

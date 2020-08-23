@@ -46,7 +46,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     scene.events.on('update', this.update, this);
   }
 
-  gotHit() {
+  gotHit(): void {
     if (this.hit) return;
     this.life--;
     if (this.life === 0) {
@@ -64,7 +64,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  addScore() {
+  addScore(): void {
     this.score += 10;
   }
 

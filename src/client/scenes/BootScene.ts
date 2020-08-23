@@ -10,7 +10,7 @@ export default class BootScene extends Scene {
     super({ key: 'BootScene' });
   }
 
-  preload() {
+  preload(): void {
     this.load.setBaseURL('assets');
     this.load.image('sky', 'sky.png');
     this.load.image(SKINS.PLATFORM.toString(), 'platform.png');
@@ -29,7 +29,7 @@ export default class BootScene extends Scene {
     this.load.bitmapFont('pixelFont', 'font/font.png', 'font/font.xml');
   }
 
-  create() {
+  create(): void {
     createPlayerAnimations(this);
     this.channel.onConnect((error) => {
       if (error) console.error(error.message);

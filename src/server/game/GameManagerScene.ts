@@ -39,7 +39,7 @@ export default class GameManagerScene extends Scene {
     this.ground = this.add.group();
     this.stars = this.add.group();
     this.bombs = this.add.group();
-    this.map = new Map(this, { x: 0 }, this.level);
+    this.map = new Map(this);
     this.generateTheLevel();
     this.setupEventListeners();
     this.addCollisions();

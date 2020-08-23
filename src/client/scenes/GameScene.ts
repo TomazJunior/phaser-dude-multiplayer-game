@@ -20,11 +20,11 @@ export default class GameScene extends Scene {
     this.objects = {};
   }
 
-  init({ channel }: { channel: ClientChannel }) {
+  init({ channel }: { channel: ClientChannel }): void {
     this.channel = channel;
   }
 
-  create() {
+  create(): void {
     this.hearts = this.add.group();
     this.scoreText = new ScoreHeaderText(this, 15, HEART.HEIGHT);
     this.hiScoreText = new ScoreHeaderText(this, GAME.WIDTH - 170, HEART.HEIGHT / 2, 'HI-SCORE ');
@@ -32,7 +32,7 @@ export default class GameScene extends Scene {
     this.listenToChannel();
   }
 
-  listenToChannel() {
+  listenToChannel(): void {
     this.channel.on(EVENTS.CURRENT_OBJECTS, (objects: CurrentObjects) => {
       [...objects.bombs, ...objects.stars, ...objects.ground].forEach((object) => {
         if (!this.objects[object.id]) {
@@ -123,7 +123,7 @@ export default class GameScene extends Scene {
       this.hiScoreText.setTint(COLORS.BLUE);
     }
   }
-  createPlayer(playerFields: PlayerFieldsToBeSync, mainPlayer: boolean) {
+  createPlayer(playerFields: PlayerFieldsToBeSync, mainPlayer: boolean): void {
     if (!this.objects[playerFields.id]) {
       const sprite = this.add.sprite(playerFields.x, playerFields.y, SKINS.DUDE.toString()).setOrigin(0.5);
       if (mainPlayer) {
@@ -144,12 +144,12 @@ export default class GameScene extends Scene {
     }
   }
 
-  update() {
+  update(): void {
     if (this.player) this.player.update(this.cursors);
   }
 
-  createInput() {
-    this.cursors = new Cursors(this, (data: any) => {
+  createInput(): void {
+    this.cursors = new Cursors(this, (data: CursorMoviment) => {
       this.channel.emit(EVENTS.CURSOR_UPDATE, data);
     });
   }
