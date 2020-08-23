@@ -4,7 +4,7 @@ import * as Types from '@geckos.io/common/lib/types';
 import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
-import { STAR, EVENTS } from '../../constants';
+import { STAR, EVENTS, SKINS } from '../../constants';
 import Bomb from './components/Bomb';
 import Ground from './components/Ground';
 import Map from './components/Map';
@@ -84,7 +84,7 @@ export default class GameManagerScene extends Scene {
       const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
       const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
       const hidden = child.prevHidden !== child.hidden;
-      if (x || y || hidden) {
+      if (x || y || hidden || (child.skin === SKINS.DUDE && (<Player>child).hit !== (<Player>child).prevHit)) {
         this.io.emit(EVENTS.UPDATE_OBJECTS, child.getFieldsTobeSync());
       }
       child.postUpdate();

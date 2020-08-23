@@ -6,6 +6,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   prevPosition: { x: number; y: number };
   hidden: boolean;
   prevHidden: boolean;
+  prevHit: boolean;
   playerId: string;
   move: CursorMoviment;
   prevNoMovement: boolean;
@@ -29,6 +30,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       y: -1,
     };
     this.prevHidden = false;
+    this.prevHit = false;
 
     this.playerId = playerId;
     this.move = {
@@ -113,6 +115,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   postUpdate(): void {
     this.prevPosition = { ...this.body.position };
     this.prevHidden = this.hidden;
+    this.prevHit = this.hit;
   }
 
   getFieldsTobeSync(): PlayerFieldsToBeSync {
