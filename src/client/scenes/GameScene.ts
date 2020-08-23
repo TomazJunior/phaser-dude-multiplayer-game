@@ -5,15 +5,15 @@ import { SKINS, EVENTS, PLAYER, HEART, GAME, COLORS } from '../../constants';
 import { setPlayerAnimation } from '../components/animations';
 import Cursors from '../components/cursors';
 import Heart from '../components/Heart';
-import ScoreText from '../components/ScoreText';
+import ScoreHeaderText from '../components/ScoreHeaderText';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
   channel: ClientChannel;
   player: Phaser.GameObjects.Sprite;
   hearts: Phaser.GameObjects.Group;
-  scoreText: ScoreText;
-  hiScoreText: ScoreText;
+  scoreText: ScoreHeaderText;
+  hiScoreText: ScoreHeaderText;
   cursors: Cursors;
   constructor() {
     super({ key: 'GameScene' });
@@ -26,8 +26,8 @@ export default class GameScene extends Scene {
 
   create() {
     this.hearts = this.add.group();
-    this.scoreText = new ScoreText(this, 15, HEART.HEIGHT);
-    this.hiScoreText = new ScoreText(this, GAME.WIDTH - 170, HEART.HEIGHT / 2, 'HI-SCORE ');
+    this.scoreText = new ScoreHeaderText(this, 15, HEART.HEIGHT);
+    this.hiScoreText = new ScoreHeaderText(this, GAME.WIDTH - 170, HEART.HEIGHT / 2, 'HI-SCORE ');
 
     this.listenToChannel();
   }
@@ -77,6 +77,10 @@ export default class GameScene extends Scene {
         this.objects[playerId].destroy(true);
         delete this.objects[playerId];
       }
+    });
+
+    this.channel.on(EVENTS.GAME_OVER, (playersResult: PlayerResult[]) => {
+      this.goToGameOverScene(playersResult);
     });
 
     this.channel.emit(EVENTS.NEW_PLAYER);
@@ -148,5 +152,9 @@ export default class GameScene extends Scene {
     this.cursors = new Cursors(this, (data: any) => {
       this.channel.emit(EVENTS.CURSOR_UPDATE, data);
     });
+  }
+
+  goToGameOverScene(playersResult: PlayerResult[]): void {
+    this.scene.start('GameOverScene', { channel: this.channel, playersResult });
   }
 }

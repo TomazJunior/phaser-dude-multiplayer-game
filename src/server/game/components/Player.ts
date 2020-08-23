@@ -71,6 +71,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   kill(): void {
     this.hidden = true;
     this.animation = DUDE_ANIMATIONS.IDLE;
+    this.setActive(false);
   }
 
   revive(): void {

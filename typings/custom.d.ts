@@ -37,3 +37,8 @@ interface CursorMoviment {
 interface Window {
   game: Phaser.Game;
 }
+
+interface PlayerResult {
+  playerId: string;
+  score: integer;
+}

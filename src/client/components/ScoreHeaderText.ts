@@ -1,6 +1,6 @@
 import { COLORS } from '../../constants';
 
-export default class ScoreText extends Phaser.GameObjects.BitmapText {
+export default class ScoreHeaderText extends Phaser.GameObjects.BitmapText {
   private score: integer = 0;
   private prefix: string;
 
