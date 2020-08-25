@@ -4,8 +4,10 @@ import { Scene } from 'phaser';
 import { SKINS, EVENTS, PLAYER, HEART, GAME, COLORS } from '../../constants';
 import { setPlayerAnimation } from '../components/animations';
 import Cursors from '../components/cursors';
+import Controls from '../components/controls';
 import Heart from '../components/Heart';
 import ScoreHeaderText from '../components/ScoreHeaderText';
+import Resize from '../components/resize';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
@@ -15,6 +17,7 @@ export default class GameScene extends Scene {
   scoreText: ScoreHeaderText;
   hiScoreText: ScoreHeaderText;
   cursors: Cursors;
+  controls: Controls;
   constructor() {
     super({ key: 'GameScene' });
     this.objects = {};
@@ -28,7 +31,6 @@ export default class GameScene extends Scene {
     this.hearts = this.add.group();
     this.scoreText = new ScoreHeaderText(this, 15, HEART.HEIGHT);
     this.hiScoreText = new ScoreHeaderText(this, GAME.WIDTH - 170, HEART.HEIGHT / 2, 'HI-SCORE ');
-
     this.listenToChannel();
   }
 
@@ -84,6 +86,12 @@ export default class GameScene extends Scene {
     });
 
     this.channel.emit(EVENTS.NEW_PLAYER);
+
+    this.scale.on('resize', (gameSize: any, baseSize: any, displaySize: any, resolution: any) => {
+      this.resize();
+    });
+
+    Resize(this.game);
     this.createInput();
   }
 
@@ -152,9 +160,24 @@ export default class GameScene extends Scene {
     this.cursors = new Cursors(this, (data: CursorMoviment) => {
       this.channel.emit(EVENTS.CURSOR_UPDATE, data);
     });
+    this.controls = new Controls(this, (data: CursorMoviment) => {
+      this.channel.emit(EVENTS.CURSOR_UPDATE, data);
+    });
   }
 
   goToGameOverScene(playersResult: PlayerResult[]): void {
     this.scene.start('GameOverScene', { channel: this.channel, playersResult });
+  }
+
+  resize() {
+    // starfield.setScale(Math.max(this.cameras.main.height / starfield.height, 1));
+    // texts.resize();
+    if (this.controls) this.controls.resize();
+    // if (!this.scale.isFullscreen) {
+    //   this.scale.startFullscreen();
+    // }
+    // fullscreenBtn.setPosition(this.cameras.main.width - 16, 16);
+    // this.cameras.main.setScroll(this.cameras.main.worldView.x, world.height);
+    // levelText.setPosition(this.cameras.main.width / 2, 20);
   }
 }
