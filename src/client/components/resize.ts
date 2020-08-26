@@ -3,15 +3,17 @@
  * https://github.com/yandeu/phaser3-scaling-resizing-example
  */
 
+import { GAME } from '../../constants';
+
 type scaleMode = 'FIT' | 'SMOOTH';
 
-const DEFAULT_WIDTH = 896;
-const DEFAULT_HEIGHT = 504;
+const DEFAULT_WIDTH = GAME.WIDTH;
+const DEFAULT_HEIGHT = GAME.HEIGHT;
 const MAX_WIDTH: number = DEFAULT_WIDTH * 1.5;
 const MAX_HEIGHT: number = DEFAULT_HEIGHT * 1.5;
 const SCALE_MODE: scaleMode = 'SMOOTH'; // FIT OR SMOOTH
 
-const resize = (game: Phaser.Game) => {
+const resize = (game: Phaser.Game): void => {
   const w = window.innerWidth;
   const h = window.innerHeight;
 

@@ -8,6 +8,8 @@ export default class Controls {
   right = false;
   up = false;
 
+  buttons: { [key: string]: Control } = {};
+
   constructor(public scene: Phaser.Scene, private emit: (data: CursorMoviment) => void) {
     // add a second pointer
     scene.input.addPointer();
@@ -37,6 +39,10 @@ export default class Controls {
     const left = new Control(scene, 0, 0, 'left').setRotation(-0.5 * Math.PI);
     const right = new Control(scene, 0, 0, 'right').setRotation(0.5 * Math.PI);
     const up = new Control(scene, 0, 0, 'up');
+    this.buttons['left'] = left;
+    this.buttons['right'] = right;
+    this.buttons['up'] = up;
+
     this.controls.push(left, right, up);
     this.resize();
 
@@ -47,26 +53,19 @@ export default class Controls {
     return { left: this.left, right: this.right, up: this.up, none: this.none };
   }
 
-  resize() {
-    const SCALE = 1;
-    const controlsRadius = (192 / 2) * SCALE;
-    const w = this.scene.cameras.main.width - 10 - controlsRadius;
-    const h = this.scene.cameras.main.height - 10 - controlsRadius;
-    const positions = [
-      {
-        x: controlsRadius + 10,
-        y: h,
-      },
-      { x: controlsRadius + 214, y: h },
-      { x: w, y: h },
-    ];
-    this.controls.forEach((ctl, i) => {
-      ctl.setPosition(positions[i].x, positions[i].y);
-      ctl.setScale(SCALE);
-    });
+  resize(): void {
+    const offset = 130;
+    const width = this.scene.cameras.main.width;
+    const height = this.scene.cameras.main.height;
+    this.buttons.left.x = offset;
+    this.buttons.left.y = height - offset;
+    this.buttons.right.x = offset * 3;
+    this.buttons.right.y = height - offset;
+    this.buttons.up.x = width - offset;
+    this.buttons.up.y = height - offset;
   }
 
-  update() {
+  update(): void {
     this.none = this.left || this.right || this.up ? false : true;
 
     if (!this.none || this.none !== this.prevNone) {

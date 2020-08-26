@@ -4,7 +4,7 @@ import * as Types from '@geckos.io/common/lib/types';
 import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
-import { STAR, EVENTS, SKINS } from '../../constants';
+import { STAR, EVENTS, SKINS, GAME } from '../../constants';
 import Bomb from './components/Bomb';
 import Ground from './components/Ground';
 import Map from './components/Map';
@@ -47,10 +47,12 @@ export default class GameManagerScene extends Scene {
     this.ground = this.add.group();
     this.stars = this.add.group();
     this.bombs = this.add.group();
-    this.map = new Map(this);
+    this.map = new Map();
     this.generateTheLevel();
     this.setupEventListeners();
     this.addCollisions();
+
+    this.physics.world.setBounds(0, 0, this.map.getMaxLength() * this.map.tileSize, GAME.HEIGHT);
   }
 
   update(): void {
@@ -94,8 +96,10 @@ export default class GameManagerScene extends Scene {
   private generateTheLevel() {
     console.log('generateTheLevel called!');
     const level = this.map.getLevel();
+    let maxLength = 0;
     // generate the level
     level.forEach((row, y) => {
+      maxLength = Math.max(row.length, maxLength);
       for (let x = 0; x < row.length; x++) {
         const xx = x * this.map.tileSize + this.map.margin.x;
         const yy = y * this.map.tileSize + this.map.margin.y;

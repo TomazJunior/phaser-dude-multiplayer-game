@@ -10,6 +10,7 @@ export default class Heart extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     this.scene = scene;
     this.id = id.toString();
+    this.setScrollFactor(0);
   }
 
   hide(): void {

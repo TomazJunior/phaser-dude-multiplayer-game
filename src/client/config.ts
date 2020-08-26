@@ -8,8 +8,7 @@ const config = {
   backgroundColor: '#ffffff',
   parent: 'phaser-game',
   scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    mode: Phaser.Scale.NONE,
     width: GAME.WIDTH,
     height: GAME.HEIGHT,
   },

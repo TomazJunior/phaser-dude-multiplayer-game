@@ -7,11 +7,13 @@ import Cursors from '../components/cursors';
 import Controls from '../components/controls';
 import Heart from '../components/Heart';
 import ScoreHeaderText from '../components/ScoreHeaderText';
-import Resize from '../components/resize';
+import Background from '../components/background';
+import Map from '../../server/game/components/Map';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
   channel: ClientChannel;
+  background: Background;
   player: Phaser.GameObjects.Sprite;
   hearts: Phaser.GameObjects.Group;
   scoreText: ScoreHeaderText;
@@ -28,6 +30,15 @@ export default class GameScene extends Scene {
   }
 
   create(): void {
+    this.cameras.main.setBackgroundColor('#ade6ff');
+    this.cameras.main.fadeIn();
+
+    const map = new Map();
+    this.physics.world.setBounds(0, 0, map.getMaxLength() * map.tileSize, GAME.HEIGHT);
+    this.cameras.main.setBounds(0, 0, map.getMaxLength() * map.tileSize, GAME.HEIGHT);
+
+    this.background = new Background(this);
+
     this.hearts = this.add.group();
     this.scoreText = new ScoreHeaderText(this, 15, HEART.HEIGHT);
     this.hiScoreText = new ScoreHeaderText(this, GAME.WIDTH - 170, HEART.HEIGHT / 2, 'HI-SCORE ');
@@ -88,10 +99,13 @@ export default class GameScene extends Scene {
     this.channel.emit(EVENTS.NEW_PLAYER);
 
     this.scale.on('resize', (gameSize: any, baseSize: any, displaySize: any, resolution: any) => {
+      this.cameras.main.width = gameSize.width;
+      this.cameras.main.height = gameSize.height;
       this.resize();
     });
 
-    Resize(this.game);
+    this.resize();
+
     this.createInput();
   }
 
@@ -138,6 +152,7 @@ export default class GameScene extends Scene {
         this.player = sprite;
         this.createHearts();
         setPlayerAnimation(this.player, playerFields.animation);
+        this.cameras.main.startFollow(this.player);
       }
 
       this.objects[playerFields.id] = sprite;
@@ -153,6 +168,7 @@ export default class GameScene extends Scene {
   }
 
   update(): void {
+    this.background.parallax();
     if (this.player) this.player.update(this.cursors);
   }
 
@@ -160,24 +176,19 @@ export default class GameScene extends Scene {
     this.cursors = new Cursors(this, (data: CursorMoviment) => {
       this.channel.emit(EVENTS.CURSOR_UPDATE, data);
     });
-    this.controls = new Controls(this, (data: CursorMoviment) => {
-      this.channel.emit(EVENTS.CURSOR_UPDATE, data);
-    });
+    if (this.sys.game.device.input.touch) {
+      this.controls = new Controls(this, (data: CursorMoviment) => {
+        this.channel.emit(EVENTS.CURSOR_UPDATE, data);
+      });
+    }
   }
 
   goToGameOverScene(playersResult: PlayerResult[]): void {
     this.scene.start('GameOverScene', { channel: this.channel, playersResult });
   }
 
-  resize() {
-    // starfield.setScale(Math.max(this.cameras.main.height / starfield.height, 1));
-    // texts.resize();
+  resize(): void {
+    this.background.adjustPosition();
     if (this.controls) this.controls.resize();
-    // if (!this.scale.isFullscreen) {
-    //   this.scale.startFullscreen();
-    // }
-    // fullscreenBtn.setPosition(this.cameras.main.width - 16, 16);
-    // this.cameras.main.setScroll(this.cameras.main.worldView.x, world.height);
-    // levelText.setPosition(this.cameras.main.width / 2, 20);
   }
 }

@@ -13,6 +13,7 @@ export default class BootScene extends Scene {
   preload(): void {
     this.load.setBaseURL('assets');
     this.load.image('sky', 'sky.png');
+    this.load.image('background', 'background.png');
     this.load.image(SKINS.PLATFORM.toString(), 'platform.png');
     this.load.image(SKINS.GROUND.toString(), 'ground.png');
     this.load.image(SKINS.STAR.toString(), 'star.png');

@@ -10,6 +10,7 @@ export default class ScoreHeaderText extends Phaser.GameObjects.BitmapText {
     this.setTint(COLORS.BLACK);
     this.prefix = prefix;
     this.setScore(0);
+    this.setScrollFactor(0);
   }
 
   public setScore(v: integer): void {

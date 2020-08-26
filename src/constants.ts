@@ -30,8 +30,8 @@ export const HEART = {
 };
 
 export const GAME = {
-  WIDTH: 800,
-  HEIGHT: 600,
+  WIDTH: 1024,
+  HEIGHT: 720,
 };
 
 export const COLORS = {
