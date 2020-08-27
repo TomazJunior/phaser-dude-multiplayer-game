@@ -7,17 +7,36 @@ export default class Map {
       '                                                 ',
       '                                                 ',
       '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '1                                                ',
       'XXXX   XXX    XX    XXXXX                        ',
       '                                                 ',
       '                                                 ',
-      'XXXXXXX    X   XXXXXXX                           ',
       '                                                 ',
       '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                                  5              ',
+      'XXXXXXX            XXXX      XXXXXXX             ',
+      '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '                       4                         ',
       'XXX    XXXXXXXXXXX     XX                        ',
       '                                                 ',
       '                                                 ',
       '                                                 ',
       '                                                 ',
+      '                                                 ',
+      '                                                 ',
+      '2                                               3',
       'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
     ],
   ];
@@ -37,11 +56,12 @@ export default class Map {
     return this.levels[0];
   }
 
-  getMaxLength(): integer {
-    let max = 0;
-    this.levels[0].forEach((row) => {
-      max = Math.max(row.length, max);
-    });
-    return max;
+  getMaxWidth(): number {
+    return this.levels[0][0].length * this.tileSize;
+  }
+
+  getMaxHeight(): integer {
+    const paddingTop = 4 * this.tileSize;
+    return this.levels[0].length * this.tileSize + paddingTop;
   }
 }

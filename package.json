@@ -5,7 +5,7 @@
   "scripts": {
     "lint": "eslint '*/**/*.{js,ts,tsx}' --quiet --fix",
     "client": "webpack --config webpack/webpack.client.js --watch",
-    "server": "npm-run-all --parallel server:*",
+    "server": "npm-run-all --parallel server:* client",
     "server:webpack": "webpack --config webpack/webpack.server.js --watch",
     "server:nodemon": "nodemon build/server/server.js"
   },

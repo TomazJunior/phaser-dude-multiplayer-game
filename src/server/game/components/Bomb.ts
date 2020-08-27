@@ -1,8 +1,9 @@
-import { SKINS } from '../../../constants';
+import { SKINS, BOMB } from '../../../constants';
 
 export default class Bomb extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
   skin = SKINS.BOMB;
+  scale = BOMB.SCALE;
   id: string;
   hidden = false;
   prevHidden = false;
@@ -20,6 +21,7 @@ export default class Bomb extends Phaser.Physics.Arcade.Sprite {
     this.id = id.toString();
     this.setBounce(1, 1).setCollideWorldBounds(true).setVelocity(Phaser.Math.Between(-200, 200), -20);
     scene.events.on('update', this.update, this);
+    this.setScale(this.scale);
   }
 
   getFieldsTobeSync(): BaseFieldsToBeSync {
@@ -29,6 +31,7 @@ export default class Bomb extends Phaser.Physics.Arcade.Sprite {
       skin: this.skin,
       id: this.id,
       hidden: this.hidden,
+      scale: this.scale,
     };
   }
 

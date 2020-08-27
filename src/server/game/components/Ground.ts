@@ -10,6 +10,7 @@ export default class Ground extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this, true);
     this.id = id.toString();
     this.body.setSize(32, 32);
+    this.setOrigin(0.5);
   }
 
   getFieldsTobeSync(): BaseFieldsToBeSync {
@@ -19,6 +20,7 @@ export default class Ground extends Phaser.Physics.Arcade.Sprite {
       y: this.body.position.y + this.body.height / 2,
       skin: this.skin,
       hidden: null,
+      scale: null,
     };
   }
 }

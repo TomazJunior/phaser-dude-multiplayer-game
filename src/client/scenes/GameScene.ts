@@ -1,14 +1,14 @@
 import { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
 
-import { SKINS, EVENTS, PLAYER, HEART, GAME, COLORS } from '../../constants';
+import { COLORS, EVENTS, GAME, HEART, PLAYER, SKINS } from '../../constants';
+import Map from '../../server/game/components/Map';
 import { setPlayerAnimation } from '../components/animations';
-import Cursors from '../components/cursors';
+import Background from '../components/background';
 import Controls from '../components/controls';
+import Cursors from '../components/cursors';
 import Heart from '../components/Heart';
 import ScoreHeaderText from '../components/ScoreHeaderText';
-import Background from '../components/background';
-import Map from '../../server/game/components/Map';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
@@ -34,8 +34,8 @@ export default class GameScene extends Scene {
     this.cameras.main.fadeIn();
 
     const map = new Map();
-    this.physics.world.setBounds(0, 0, map.getMaxLength() * map.tileSize, GAME.HEIGHT);
-    this.cameras.main.setBounds(0, 0, map.getMaxLength() * map.tileSize, GAME.HEIGHT);
+    this.physics.world.setBounds(0, 0, map.getMaxWidth(), map.getMaxHeight());
+    this.cameras.main.setBounds(0, 0, map.getMaxWidth(), map.getMaxHeight());
 
     this.background = new Background(this);
 
@@ -49,12 +49,9 @@ export default class GameScene extends Scene {
     this.channel.on(EVENTS.CURRENT_OBJECTS, (objects: CurrentObjects) => {
       [...objects.bombs, ...objects.stars, ...objects.ground].forEach((object) => {
         if (!this.objects[object.id]) {
-          const sprite = this.add.sprite(object.x, object.y, object.skin.toString()).setOrigin(0.5);
-          this.objects[object.id] = sprite;
-          if (object.hidden !== null) sprite.setVisible(!object.hidden);
+          this.addSprite(object);
         }
       });
-
       objects.players
         .filter((player) => {
           return !this.objects[player.id];
@@ -77,10 +74,8 @@ export default class GameScene extends Scene {
         if (object.skin === SKINS.DUDE) {
           this.updateDudeObjects(<PlayerFieldsToBeSync>object, sprite, object.id === this.channel.id);
         }
-        if (object.hidden !== null) sprite.setVisible(!object.hidden);
       } else {
-        const sprite = this.add.sprite(object.x, object.y, object.skin.toString()).setOrigin(0.5);
-        this.objects[object.id] = sprite;
+        this.addSprite(object);
       }
     });
 
@@ -107,6 +102,14 @@ export default class GameScene extends Scene {
     this.resize();
 
     this.createInput();
+  }
+
+  private addSprite(object: BaseFieldsToBeSync): Phaser.GameObjects.Sprite {
+    const sprite = this.add.sprite(object.x, object.y, object.skin.toString()).setOrigin(0.5);
+    this.objects[object.id] = sprite;
+    if (object.hidden !== null) sprite.setVisible(!object.hidden);
+    if (object.scale !== null) sprite.setScale(object.scale);
+    return sprite;
   }
 
   private updateDudeObjects(player: PlayerFieldsToBeSync, sprite: Phaser.GameObjects.Sprite, mainPlayer: boolean) {
@@ -147,16 +150,13 @@ export default class GameScene extends Scene {
   }
   createPlayer(playerFields: PlayerFieldsToBeSync, mainPlayer: boolean): void {
     if (!this.objects[playerFields.id]) {
-      const sprite = this.add.sprite(playerFields.x, playerFields.y, SKINS.DUDE.toString()).setOrigin(0.5);
+      const sprite = this.addSprite(playerFields);
       if (mainPlayer) {
         this.player = sprite;
         this.createHearts();
         setPlayerAnimation(this.player, playerFields.animation);
         this.cameras.main.startFollow(this.player);
       }
-
-      this.objects[playerFields.id] = sprite;
-      if (playerFields.hidden !== null) sprite.setVisible(!playerFields.hidden);
     }
   }
 

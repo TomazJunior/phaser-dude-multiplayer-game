@@ -30,6 +30,8 @@ export default class GameManagerScene extends Scene {
   tick: number;
   isGameOver = false;
   gameStarted = false;
+
+  playerPositions: Array<{ x: number; y: number }> = new Array(GAME.MAX_PLAYERS);
   constructor() {
     super({ key: 'GameManagerScene' });
   }
@@ -52,7 +54,7 @@ export default class GameManagerScene extends Scene {
     this.setupEventListeners();
     this.addCollisions();
 
-    this.physics.world.setBounds(0, 0, this.map.getMaxLength() * this.map.tileSize, GAME.HEIGHT);
+    this.physics.world.setBounds(0, 0, this.map.getMaxWidth(), this.map.getMaxHeight());
   }
 
   update(): void {
@@ -96,19 +98,21 @@ export default class GameManagerScene extends Scene {
   private generateTheLevel() {
     console.log('generateTheLevel called!');
     const level = this.map.getLevel();
-    let maxLength = 0;
     // generate the level
     level.forEach((row, y) => {
-      maxLength = Math.max(row.length, maxLength);
       for (let x = 0; x < row.length; x++) {
         const xx = x * this.map.tileSize + this.map.margin.x;
         const yy = y * this.map.tileSize + this.map.margin.y;
         if (row[x] === 'X') this.ground.add(new Ground(this, this.newId(), xx, yy));
+        if (['1', '2', '3', '4', '5'].includes(row[x])) {
+          this.playerPositions[parseInt(row[x]) - 1] = { x: xx, y: yy - this.map.margin.y };
+        }
       }
     });
 
+    //TODO: set position of stars based on the map position
     const startStepX = 70;
-    for (let i = 0; i < STAR.NUMBER_OF_STARS; i++) {
+    for (let i = 0; i < GAME.NUMBER_OF_STARS; i++) {
       this.stars.add(new Star(this, this.newId(), 12 + i * startStepX, 0));
     }
   }
@@ -139,7 +143,11 @@ export default class GameManagerScene extends Scene {
   }
 
   private createPlayer(channel: ServerChannel) {
-    const newPlayer = new Player(this, channel.id, Phaser.Math.RND.integerInRange(100, 700));
+    if (this.players.children.size >= this.playerPositions.length) {
+      return;
+    }
+    const position = this.playerPositions[this.players.children.size];
+    const newPlayer = new Player(this, channel.id, position.x, position.y);
     this.players.add(newPlayer);
     channel.emit(EVENTS.CURRENT_OBJECTS, {
       players: this.players.children.entries.map((player: Player) => player.getFieldsTobeSync()),
@@ -159,7 +167,7 @@ export default class GameManagerScene extends Scene {
     this.physics.add.overlap(this.players, this.stars, (player: Player, star: Star) => {
       if (star.hidden) return;
       if (player.hidden || player.hit) return;
-      star.hide();
+      star.hide(this.map.getMaxWidth());
       player.addScore();
 
       if (this.stars.countActive(true) === 0) {

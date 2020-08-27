@@ -15,12 +15,17 @@ export const DUDE_ANIMATIONS = {
 };
 
 export const STAR = {
-  NUMBER_OF_STARS: 10,
   GRAVITY_Y: -1000,
+  SCALE: 1.5,
 };
 
 export const PLAYER = {
   MAX_LIFE: 5,
+  SCALE: 2,
+};
+
+export const BOMB = {
+  SCALE: 1.5,
 };
 
 export const HEART = {
@@ -32,6 +37,8 @@ export const HEART = {
 export const GAME = {
   WIDTH: 1024,
   HEIGHT: 720,
+  MAX_PLAYERS: 5,
+  NUMBER_OF_STARS: 10,
 };
 
 export const COLORS = {

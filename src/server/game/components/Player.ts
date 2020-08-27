@@ -1,4 +1,4 @@
-import { DUDE_ANIMATIONS, SKINS, PLAYER } from '../../../constants';
+import { DUDE_ANIMATIONS, PLAYER, SKINS } from '../../../constants';
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
@@ -17,6 +17,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
   alpha = 1;
   life = PLAYER.MAX_LIFE;
   score = 0;
+  scale = PLAYER.SCALE;
   constructor(scene: Phaser.Scene, playerId: string, x = 200, y = 200) {
     super(scene, x, y, '');
     scene.add.existing(this);
@@ -40,11 +41,13 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       none: false,
     };
 
-    this.velocity = 160; // the velocity when moving our player
+    this.velocity = 200; // the velocity when moving our player
 
     this.prevNoMovement = true;
 
-    this.setCollideWorldBounds(true).setOrigin(0);
+    this.setScale(this.scale);
+
+    this.setCollideWorldBounds(true).setOrigin(0.5);
     scene.events.on('update', this.update, this);
   }
 
@@ -103,7 +106,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     else if (this.move.right) this.setVelocityX(this.velocity);
     else this.setVelocityX(0);
 
-    if (this.move.up && this.body.blocked.down) this.setVelocityY(-600);
+    if (this.move.up && this.body.blocked.down) this.setVelocityY(-1250);
     this.animation = DUDE_ANIMATIONS.IDLE;
     if (this.body.velocity.x >= 0.5) {
       this.animation = DUDE_ANIMATIONS.RIGHT;
@@ -130,6 +133,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       alpha: this.alpha,
       life: this.life,
       score: this.score,
+      scale: this.scale,
     };
   }
 }

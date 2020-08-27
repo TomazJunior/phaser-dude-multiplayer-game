@@ -3,6 +3,7 @@ import { SKINS, STAR } from '../../../constants';
 export default class Star extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
   skin = SKINS.STAR;
+  scale = STAR.SCALE;
   id: string;
   hidden = false;
   prevHidden = false;
@@ -20,6 +21,7 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
     this.id = id.toString();
     this.setCollideWorldBounds(true).setOrigin(0);
     this.setGravityY(STAR.GRAVITY_Y);
+    this.setScale(this.scale);
   }
 
   getFieldsTobeSync(): BaseFieldsToBeSync {
@@ -29,6 +31,7 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
       skin: this.skin,
       id: this.id,
       hidden: this.hidden,
+      scale: this.scale,
     };
   }
 
@@ -38,11 +41,11 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
     this.hidden = false;
   }
 
-  hide(): void {
+  hide(maxWidthToShowUp: integer): void {
     this.setActive(false);
     this.hidden = true;
     // set position when start will be shown in the next level
-    this.setPosition(Phaser.Math.RND.integerInRange(0, 800), 0);
+    this.setPosition(Phaser.Math.RND.integerInRange(0, maxWidthToShowUp), 0);
 
     // disable gravity to keep star in the initial position
     this.body.allowGravity = false;

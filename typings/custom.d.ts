@@ -25,6 +25,7 @@ interface BaseFieldsToBeSync {
   skin: number;
   id: string;
   hidden: boolean;
+  scale: number;
 }
 
 interface CursorMoviment {
