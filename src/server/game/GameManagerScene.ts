@@ -4,7 +4,7 @@ import * as Types from '@geckos.io/common/lib/types';
 import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
-import { STAR, EVENTS, SKINS, GAME } from '../../constants';
+import { EVENTS, SKINS, GAME } from '../../constants';
 import Bomb from './components/Bomb';
 import Ground from './components/Ground';
 import Map from './components/Map';
