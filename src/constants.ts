@@ -3,9 +3,11 @@ export const SKINS = {
   STAR: 1,
   BOMB: 2,
   PLATFORM: 4,
-  GROUND: 5,
+  GROUND_MIDDLE: 5,
   HEART: 6,
   HEART_EMPTY: 7,
+  GROUND_LEFT: 8,
+  GROUND_RIGHT: 9,
 };
 
 export const DUDE_ANIMATIONS = {
@@ -16,7 +18,6 @@ export const DUDE_ANIMATIONS = {
 
 export const STAR = {
   GRAVITY_Y: -1000,
-  SCALE: 1.5,
 };
 
 export const PLAYER = {
@@ -29,9 +30,10 @@ export const BOMB = {
 };
 
 export const HEART = {
-  HEIGHT: 48,
-  WIDTH: 48,
-  STEP_X: 35,
+  HEIGHT: 128,
+  WIDTH: 128,
+  STEP_X: 58,
+  SCALE: 0.5,
 };
 
 export const GAME = {
@@ -39,6 +41,10 @@ export const GAME = {
   HEIGHT: 720,
   MAX_PLAYERS: 5,
   NUMBER_OF_STARS: 10,
+};
+
+export const GROUND = {
+  SIZE: 128,
 };
 
 export const COLORS = {

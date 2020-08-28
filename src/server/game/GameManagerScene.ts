@@ -104,6 +104,8 @@ export default class GameManagerScene extends Scene {
         const xx = x * this.map.tileSize + this.map.margin.x;
         const yy = y * this.map.tileSize + this.map.margin.y;
         if (row[x] === 'X') this.ground.add(new Ground(this, this.newId(), xx, yy));
+        if (row[x] === '[') this.ground.add(new Ground(this, this.newId(), xx, yy, SKINS.GROUND_LEFT));
+        if (row[x] === ']') this.ground.add(new Ground(this, this.newId(), xx, yy, SKINS.GROUND_RIGHT));
         if (['1', '2', '3', '4', '5'].includes(row[x])) {
           this.playerPositions[parseInt(row[x]) - 1] = { x: xx, y: yy - this.map.margin.y };
         }
@@ -111,9 +113,9 @@ export default class GameManagerScene extends Scene {
     });
 
     //TODO: set position of stars based on the map position
-    const startStepX = 70;
+    const startStepX = 100;
     for (let i = 0; i < GAME.NUMBER_OF_STARS; i++) {
-      this.stars.add(new Star(this, this.newId(), 12 + i * startStepX, 0));
+      this.stars.add(new Star(this, this.newId(), 56 + i * startStepX, 0));
     }
   }
 

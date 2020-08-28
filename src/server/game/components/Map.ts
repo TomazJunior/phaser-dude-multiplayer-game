@@ -1,50 +1,29 @@
+import { GROUND } from '../../../constants';
+
 export default class Map {
   margin: { x: number; y: number };
-  tileSize = 32;
+  tileSize = GROUND.SIZE;
   levels = [
     [
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '1                                                ',
-      'XXXX   XXX    XX    XXXXX                        ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                  5              ',
-      'XXXXXXX            XXXX      XXXXXXX             ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                       4                         ',
-      'XXX    XXXXXXXXXXX     XX                        ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '                                                 ',
-      '2                                               3',
-      'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+      '            ',
+      '            ',
+      '            ',
+      '            ',
+      '  [X]       ',
+      '   4     5  ',
+      ' [XXX]  [X] ',
+      '      3     ',
+      '    [XXX]   ',
+      '1          2',
+      '[XXXXXXXXXX]',
     ],
   ];
 
   constructor() {
+    const halfSize = this.tileSize / 2;
     this.margin = {
-      y: 3 * this.tileSize + 11 + 16, // 16 is the half of a box
-      x: 16,
+      y: 3 * this.tileSize + 11 + halfSize, // 16 is the half of a box
+      x: halfSize,
     };
   }
 
@@ -61,7 +40,7 @@ export default class Map {
   }
 
   getMaxHeight(): integer {
-    const paddingTop = 4 * this.tileSize;
+    const paddingTop = 3 * this.tileSize;
     return this.levels[0].length * this.tileSize + paddingTop;
   }
 }

@@ -5,7 +5,7 @@ export default class ScoreHeaderText extends Phaser.GameObjects.BitmapText {
   private prefix: string;
 
   constructor(scene: Phaser.Scene, x: number, y: number, prefix = '') {
-    super(scene, x, y, 'pixelFont', '', 28);
+    super(scene, x, y, 'pixelFont', '', 36);
     scene.add.existing(this);
     this.setTint(COLORS.BLACK);
     this.prefix = prefix;

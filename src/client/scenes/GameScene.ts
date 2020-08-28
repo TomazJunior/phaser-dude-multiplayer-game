@@ -40,8 +40,8 @@ export default class GameScene extends Scene {
     this.background = new Background(this);
 
     this.hearts = this.add.group();
-    this.scoreText = new ScoreHeaderText(this, 15, HEART.HEIGHT);
-    this.hiScoreText = new ScoreHeaderText(this, GAME.WIDTH - 170, HEART.HEIGHT / 2, 'HI-SCORE ');
+    this.scoreText = new ScoreHeaderText(this, 15, HEART.HEIGHT / 2);
+    this.hiScoreText = new ScoreHeaderText(this, GAME.WIDTH - 170, 15, 'HI-SCORE ');
     this.listenToChannel();
   }
 
@@ -161,9 +161,9 @@ export default class GameScene extends Scene {
   }
 
   private createHearts() {
-    const halfHeart = HEART.HEIGHT / 2;
+    const margin = 35;
     for (let i = 0; i < PLAYER.MAX_LIFE; i++) {
-      this.hearts.add(new Heart(this, i, halfHeart + i * HEART.STEP_X, halfHeart));
+      this.hearts.add(new Heart(this, i, margin + i * HEART.STEP_X, margin));
     }
   }
 

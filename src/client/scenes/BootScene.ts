@@ -15,7 +15,9 @@ export default class BootScene extends Scene {
     this.load.image('sky', 'sky.png');
     this.load.image('background', 'background.png');
     this.load.image(SKINS.PLATFORM.toString(), 'platform.png');
-    this.load.image(SKINS.GROUND.toString(), 'ground.png');
+    this.load.image(SKINS.GROUND_MIDDLE.toString(), 'ground.png');
+    this.load.image(SKINS.GROUND_LEFT.toString(), 'ground_left.png');
+    this.load.image(SKINS.GROUND_RIGHT.toString(), 'ground_right.png');
     this.load.image(SKINS.STAR.toString(), 'star.png');
     this.load.image(SKINS.BOMB.toString(), 'bomb.png');
     this.load.image(SKINS.HEART.toString(), 'heart.png');

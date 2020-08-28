@@ -3,7 +3,6 @@ import { SKINS, STAR } from '../../../constants';
 export default class Star extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
   skin = SKINS.STAR;
-  scale = STAR.SCALE;
   id: string;
   hidden = false;
   prevHidden = false;
@@ -16,12 +15,11 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
     };
     scene.add.existing(this);
     scene.physics.add.existing(this);
-    this.body.setSize(24, 22);
+    this.body.setSize(128, 128);
     this.scene = scene;
     this.id = id.toString();
-    this.setCollideWorldBounds(true).setOrigin(0);
+    this.setCollideWorldBounds(true).setOrigin(0.5);
     this.setGravityY(STAR.GRAVITY_Y);
-    this.setScale(this.scale);
   }
 
   getFieldsTobeSync(): BaseFieldsToBeSync {
@@ -31,7 +29,7 @@ export default class Star extends Phaser.Physics.Arcade.Sprite {
       skin: this.skin,
       id: this.id,
       hidden: this.hidden,
-      scale: this.scale,
+      scale: null,
     };
   }
 

@@ -1,4 +1,4 @@
-import { SKINS } from '../../constants';
+import { SKINS, HEART } from '../../constants';
 
 export default class Heart extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;
@@ -11,6 +11,7 @@ export default class Heart extends Phaser.Physics.Arcade.Sprite {
     this.scene = scene;
     this.id = id.toString();
     this.setScrollFactor(0);
+    this.setScale(HEART.SCALE);
   }
 
   hide(): void {

@@ -19,7 +19,7 @@ export default class Bomb extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(14, 14);
     this.scene = scene;
     this.id = id.toString();
-    this.setBounce(1, 1).setCollideWorldBounds(true).setVelocity(Phaser.Math.Between(-200, 200), -20);
+    this.setBounce(1, 1).setCollideWorldBounds(true).setVelocity(Phaser.Math.Between(-150, 150), -20);
     scene.events.on('update', this.update, this);
     this.setScale(this.scale);
   }

@@ -1,16 +1,17 @@
-import { SKINS } from '../../../constants';
+import { SKINS, GROUND } from '../../../constants';
 
 export default class Ground extends Phaser.Physics.Arcade.Sprite {
-  skin = SKINS.GROUND;
+  skin: number;
   id: string;
 
-  constructor(scene: Phaser.Scene, id: number, x: number, y: number) {
+  constructor(scene: Phaser.Scene, id: number, x: number, y: number, skin = SKINS.GROUND_MIDDLE) {
     super(scene, x, y, '');
     scene.add.existing(this);
     scene.physics.add.existing(this, true);
     this.id = id.toString();
-    this.body.setSize(32, 32);
+    this.body.setSize(GROUND.SIZE, GROUND.SIZE);
     this.setOrigin(0.5);
+    this.skin = skin;
   }
 
   getFieldsTobeSync(): BaseFieldsToBeSync {

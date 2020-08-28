@@ -1,3 +1,5 @@
+import { COLORS } from '../../constants';
+
 export default class Controls {
   controls: Control[] = [];
 
@@ -81,6 +83,7 @@ class Control extends Phaser.GameObjects.Image {
     super(scene, x, y, 'controls');
     scene.add.existing(this);
 
+    this.setTint(COLORS.BLACK);
     this.setInteractive().setScrollFactor(0).setAlpha(0.5).setDepth(2);
 
     if (!scene.sys.game.device.input.touch) this.setAlpha(0);
