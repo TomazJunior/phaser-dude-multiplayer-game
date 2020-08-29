@@ -47,3 +47,7 @@ interface PlayerResult {
   playerId: string;
   score: integer;
 }
+
+interface RemoveChannel {
+  channelId: string;
+}

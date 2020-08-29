@@ -1,11 +1,24 @@
 import '@geckos.io/phaser-on-nodejs';
 import config from './config';
-import { Server } from 'http';
-
-export default class PhaserGame extends Phaser.Game {
-  server: Server;
-  constructor(server: Server) {
+import RoomManager from '../roomManager';
+import GameManagerScene from './GameManagerScene';
+export class PhaserGame extends Phaser.Game {
+  constructor(config: Phaser.Types.Core.GameConfig) {
     super(config);
-    this.server = server;
   }
 }
+
+const Game = (roomManager: RoomManager, roomId: string): PhaserGame => {
+  const cfg = { ...config };
+  config.scene = [GameManagerScene];
+
+  cfg.callbacks = {
+    preBoot: (): { roomManager: RoomManager; roomId: string } => {
+      return { roomManager, roomId };
+    },
+  };
+
+  return new PhaserGame(cfg);
+};
+
+export default Game;

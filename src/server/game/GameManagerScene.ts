@@ -1,7 +1,7 @@
-import { ClientChannel } from '@geckos.io/client';
-import * as Types from '@geckos.io/common/lib/types';
-
-import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
+// import { ClientChannel } from '@geckos.io/client';
+// import * as Types from '@geckos.io/common/lib/types';
+import { ServerChannel } from '@geckos.io/server';
+// import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
 import { EVENTS, SKINS, GAME } from '../../constants';
@@ -10,15 +10,15 @@ import Ground from './components/Ground';
 import Map from './components/Map';
 import Player from './components/Player';
 import Star from './components/Star';
+import RoomManager from '../roomManager';
 
-interface ServerChannel extends ClientChannel {
-  broadcast: {
-    emit(eventName: Types.EventName, data?: Types.Data | null, options?: Types.EmitOptions): void;
-  };
-}
+// interface ServerChannel extends ClientChannel {
+//   broadcast: {
+//     emit(eventName: Types.EventName, data?: Types.Data | null, options?: Types.EmitOptions): void;
+//   };
+// }
 
 export default class GameManagerScene extends Scene {
-  io: GeckosServer;
   bombs: Phaser.GameObjects.Group;
   ground: Phaser.GameObjects.Group;
   players: Phaser.GameObjects.Group;
@@ -32,44 +32,60 @@ export default class GameManagerScene extends Scene {
   gameStarted = false;
 
   playerPositions: Array<{ x: number; y: number }> = new Array(GAME.MAX_PLAYERS);
+  roomManager: RoomManager;
+  roomId: string;
   constructor() {
     super({ key: 'GameManagerScene' });
   }
 
   init(): void {
-    console.log('process.env.NODE_ENV', process.env.NODE_ENV);
-    this.io = geckos({
-      iceServers: process.env.NODE_ENV === 'production' ? iceServers : [],
-    });
-    this.io.addServer(this.game.server);
+    const { roomManager, roomId } = this.game.config.preBoot();
+    this.roomManager = roomManager;
+    this.roomId = roomId;
   }
 
   create(): void {
+    this.isGameOver = false;
+    // this.events.addListener('stopScene', () => {
+    //   // this.scene.stop();
+    //   console.log(`Scene in roomId <b>${this.roomId}</b> has stopped!`);
+    // });
+
     this.players = this.add.group();
     this.ground = this.add.group();
     this.stars = this.add.group();
     this.bombs = this.add.group();
     this.map = new Map();
     this.generateTheLevel();
-    this.setupEventListeners();
     this.addCollisions();
 
     this.physics.world.setBounds(0, 0, this.map.getMaxWidth(), this.map.getMaxHeight());
+
+    this.events.on(
+      EVENTS.NEW_PLAYER,
+      (channel: ServerChannel) => {
+        this.createPlayer(channel);
+        this.setupEventListeners(channel);
+      },
+      this,
+    );
   }
 
-  update(): void {
-    if (this.isGameOver) return;
+  async update(): void {
+    if (this.isGameOver) {
+      return;
+    }
     this.tick++;
     if (this.tick > 1000000) this.tick = 0;
     this.updateGroup(this.players);
     this.updateGroup(this.stars);
     this.updateGroup(this.bombs);
     if (this.gameStarted && this.players.getFirstAlive() === null) {
-      this.setGameOver();
+      await this.setGameOver();
     }
   }
 
-  private setGameOver() {
+  private async setGameOver() {
     console.log('game over');
     this.isGameOver = true;
     this.gameStarted = false;
@@ -79,7 +95,11 @@ export default class GameManagerScene extends Scene {
         score,
       };
     });
-    this.io.emit(EVENTS.GAME_OVER, playerResults);
+    this.roomManager.emit(this.roomId, EVENTS.GAME_OVER, playerResults);
+    this.players.children.iterate((child: Player) => {
+      this.roomManager.leaveRoom(this.roomId, child.playerId);
+    });
+    await this.roomManager.removeRoom(this.roomId);
   }
 
   private updateGroup(group: Phaser.GameObjects.Group) {
@@ -89,7 +109,7 @@ export default class GameManagerScene extends Scene {
       const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
       const hidden = child.prevHidden !== child.hidden;
       if (x || y || hidden || (child.skin === SKINS.DUDE && (<Player>child).hit !== (<Player>child).prevHit)) {
-        this.io.emit(EVENTS.UPDATE_OBJECTS, child.getFieldsTobeSync());
+        this.roomManager.emit(this.roomId, EVENTS.UPDATE_OBJECTS, child.getFieldsTobeSync());
       }
       child.postUpdate();
     });
@@ -119,29 +139,24 @@ export default class GameManagerScene extends Scene {
     }
   }
 
-  private setupEventListeners() {
-    this.io.onConnection((channel: ServerChannel) => {
-      console.log('Connect user ' + channel.id);
-      channel.onDisconnect(() => {
-        console.log('Disconnect user ' + channel.id);
-        const currentPlayer = this.getPlayer(channel.id);
-        if (currentPlayer) {
-          this.players.remove(currentPlayer);
-          this.io.room().emit(EVENTS.DISCONNECT, channel.id);
-        }
-      });
-      channel.emit(EVENTS.READY);
-      channel.on(EVENTS.NEW_PLAYER, () => {
-        this.createPlayer(channel);
-      });
-
-      channel.on(EVENTS.CURSOR_UPDATE, (data: CursorMoviment) => {
-        const currentPlayer: Player = this.getPlayer(channel.id);
-        if (currentPlayer) {
-          currentPlayer.setMove(data);
-        }
-      });
+  private setupEventListeners(channel: ServerChannel) {
+    channel.on(EVENTS.REMOVE_PLAYER, ({ channelId }: RemoveChannel) => {
+      console.log('Remove user ' + channelId);
+      this.removePlayer(channelId);
     });
+    channel.on(EVENTS.CURSOR_UPDATE, (data: CursorMoviment) => {
+      const currentPlayer: Player = this.getPlayer(channel.id);
+      if (currentPlayer) {
+        currentPlayer.setMove(data);
+      }
+    });
+  }
+
+  private removePlayer(channelId: string) {
+    const currentPlayer = this.getPlayer(channelId);
+    if (currentPlayer) {
+      this.players.remove(currentPlayer);
+    }
   }
 
   private createPlayer(channel: ServerChannel) {
@@ -151,13 +166,14 @@ export default class GameManagerScene extends Scene {
     const position = this.playerPositions[this.players.children.size];
     const newPlayer = new Player(this, channel.id, position.x, position.y);
     this.players.add(newPlayer);
+    // TODO: validate, it should be send only to current player
     channel.emit(EVENTS.CURRENT_OBJECTS, {
       players: this.players.children.entries.map((player: Player) => player.getFieldsTobeSync()),
       ground: this.ground.children.entries.map((ground: Ground) => ground.getFieldsTobeSync()),
       stars: this.stars.children.entries.map((star: Star) => star.getFieldsTobeSync()),
       bombs: this.bombs.children.entries.map((bomb: Bomb) => bomb.getFieldsTobeSync()),
     });
-    channel.broadcast.emit(EVENTS.SPAWN_PLAYER, newPlayer.getFieldsTobeSync());
+    this.roomManager.emit(this.roomId, EVENTS.SPAWN_PLAYER, newPlayer.getFieldsTobeSync());
     this.gameStarted = true;
   }
 
@@ -197,6 +213,7 @@ export default class GameManagerScene extends Scene {
   }
 
   private getPlayer(playerId: string): Player {
+    if (!this.players || !this.players.children) return;
     return <Player>this.players.getChildren().find((p: Player) => {
       return p.playerId === playerId;
     });

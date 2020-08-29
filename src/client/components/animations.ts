@@ -23,6 +23,8 @@ export const createPlayerAnimations = (scene: Phaser.Scene) => {
 };
 
 export const setPlayerAnimation = (sprite: Phaser.GameObjects.Sprite, animation = DUDE_ANIMATIONS.IDLE) => {
+  if (!sprite.anims) return;
+
   if (!sprite.anims.isPlaying) sprite.play(animation);
   else if (sprite.anims.isPlaying && sprite.anims.getCurrentKey() !== animation) sprite.play(animation);
 };

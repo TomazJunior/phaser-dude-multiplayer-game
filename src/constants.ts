@@ -21,7 +21,7 @@ export const STAR = {
 };
 
 export const PLAYER = {
-  MAX_LIFE: 5,
+  MAX_LIFE: 3,
   SCALE: 2,
 };
 
@@ -41,6 +41,7 @@ export const GAME = {
   HEIGHT: 720,
   MAX_PLAYERS: 5,
   NUMBER_OF_STARS: 10,
+  USER_KICK_TIMEOUT: 60_000, // 1 minute
 };
 
 export const GROUND = {
@@ -63,4 +64,5 @@ export const EVENTS = {
   SPAWN_PLAYER: 'SPAWN_PLAYER',
   GAME_OVER: 'GAME_OVER',
   RESET_GAME: 'RESET_GAME',
+  REMOVE_PLAYER: 'REMOVE_PLAYER',
 };

@@ -1,5 +1,5 @@
-import { ClientChannel } from '@geckos.io/client';
 import { Scene } from 'phaser';
+import { ClientChannel } from '@geckos.io/client';
 
 import { COLORS, EVENTS, GAME, HEART, PLAYER, SKINS } from '../../constants';
 import Map from '../../server/game/components/Map';
@@ -9,6 +9,7 @@ import Controls from '../components/controls';
 import Cursors from '../components/cursors';
 import Heart from '../components/Heart';
 import ScoreHeaderText from '../components/ScoreHeaderText';
+import { createPlayerAnimations } from '../components/animations';
 
 export default class GameScene extends Scene {
   objects: Record<string, Phaser.GameObjects.Sprite>;
@@ -30,6 +31,7 @@ export default class GameScene extends Scene {
   }
 
   create(): void {
+    createPlayerAnimations(this);
     this.cameras.main.setBackgroundColor('#ade6ff');
     this.cameras.main.fadeIn();
 
@@ -66,8 +68,8 @@ export default class GameScene extends Scene {
     });
 
     this.channel.on(EVENTS.UPDATE_OBJECTS, (object: PlayerFieldsToBeSync | BaseFieldsToBeSync) => {
-      if (this.objects[object.id]) {
-        const sprite = this.objects[object.id];
+      const sprite = this.objects[object.id];
+      if (sprite) {
         if (object.hidden !== null) sprite.setVisible(!object.hidden);
         if (object.x !== null) sprite.x = object.x;
         if (object.y !== null) sprite.y = object.y;
@@ -184,6 +186,11 @@ export default class GameScene extends Scene {
   }
 
   goToGameOverScene(playersResult: PlayerResult[]): void {
+    Object.keys(this.objects).forEach((key: string) => {
+      this.objects[key].destroy();
+      delete this.objects[key];
+    });
+    this.scene.stop();
     this.scene.start('GameOverScene', { channel: this.channel, playersResult });
   }
 
