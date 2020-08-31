@@ -67,19 +67,21 @@ export default class GameScene extends Scene {
       this.createPlayer(player, false);
     });
 
-    this.channel.on(EVENTS.UPDATE_OBJECTS, (object: PlayerFieldsToBeSync | BaseFieldsToBeSync) => {
-      const sprite = this.objects[object.id];
-      console.log('update obj', object.id, ' - ', object.skin, ', size: ', JSON.stringify(object).length);
-      if (sprite) {
-        if (object.hidden !== null) sprite.setVisible(!object.hidden);
-        if (object.x !== null) sprite.x = object.x;
-        if (object.y !== null) sprite.y = object.y;
-        if (object.skin === SKINS.DUDE) {
-          this.updateDudeObjects(<PlayerFieldsToBeSync>object, sprite, object.id === this.channel.id);
+    this.channel.on(EVENTS.UPDATE_OBJECTS, (objectsToSync: PlayerFieldsToBeSync[] | BaseFieldsToBeSync[]) => {
+      console.log('update objs', JSON.stringify(objectsToSync).length, '=>', objectsToSync.length);
+      objectsToSync.forEach((object) => {
+        const sprite = this.objects[object.id];
+        if (sprite) {
+          if (object.hidden !== null) sprite.setVisible(!object.hidden);
+          if (object.x !== null) sprite.x = object.x;
+          if (object.y !== null) sprite.y = object.y;
+          if (object.skin === SKINS.DUDE) {
+            this.updateDudeObjects(<PlayerFieldsToBeSync>object, sprite, object.id === this.channel.id);
+          }
+        } else {
+          this.addSprite(object);
         }
-      } else {
-        this.addSprite(object);
-      }
+      });
     });
 
     this.channel.on(EVENTS.DISCONNECT, (playerId: string) => {

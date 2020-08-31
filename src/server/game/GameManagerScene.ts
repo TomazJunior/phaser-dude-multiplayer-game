@@ -27,7 +27,7 @@ export default class GameManagerScene extends Scene {
   map: Map;
   level = 0;
   id = 0;
-  tick: number;
+  tick = 0;
   isGameOver = false;
   gameStarted = false;
 
@@ -81,14 +81,20 @@ export default class GameManagerScene extends Scene {
   }
 
   async update(): Promise<void> {
+    const objectsToSync: Array<PlayerFieldsToBeSync | BaseFieldsToBeSync> = [];
     if (this.isGameOver) {
       return;
     }
     this.tick++;
     if (this.tick > 1000000) this.tick = 0;
-    this.updateGroup(this.players);
-    this.updateGroup(this.stars);
-    this.updateGroup(this.bombs);
+    objectsToSync.push(...this.updateGroup(this.players));
+    if (this.tick % 3 === 0) {
+      objectsToSync.push(...this.updateGroup(this.stars));
+      objectsToSync.push(...this.updateGroup(this.bombs));
+    }
+    if (objectsToSync.length) {
+      this.roomManager.emit(this.roomId, EVENTS.UPDATE_OBJECTS, objectsToSync);
+    }
     if (this.gameStarted && this.players.getFirstAlive() === null) {
       await this.setGameOver();
     }
@@ -114,17 +120,20 @@ export default class GameManagerScene extends Scene {
     await this.roomManager.removeRoom(this.roomId);
   }
 
-  private updateGroup(group: Phaser.GameObjects.Group) {
-    group.children.iterate((child: Player | Star | Bomb) => {
-      child.update();
-      const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
-      const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
-      const hidden = child.prevHidden !== child.hidden;
-      if (x || y || hidden || (child.skin === SKINS.DUDE && (<Player>child).hit !== (<Player>child).prevHit)) {
-        this.roomManager.emit(this.roomId, EVENTS.UPDATE_OBJECTS, child.getFieldsTobeSync());
-      }
-      child.postUpdate();
-    });
+  private updateGroup(group: Phaser.GameObjects.Group): PlayerFieldsToBeSync[] | BaseFieldsToBeSync[] {
+    return group.children
+      .getArray()
+      .filter((child: Player | Star | Bomb) => {
+        child.update();
+        const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
+        const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
+        const hidden = child.prevHidden !== child.hidden;
+        child.postUpdate();
+        return x || y || hidden || (child.skin === SKINS.DUDE && (<Player>child).hit !== (<Player>child).prevHit);
+      })
+      .map((child: Player | Star | Bomb) => {
+        return child.getFieldsTobeSync();
+      });
   }
 
   private generateTheLevel() {
