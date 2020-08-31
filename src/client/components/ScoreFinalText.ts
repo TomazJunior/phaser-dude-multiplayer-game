@@ -13,8 +13,7 @@ export default class ScoreFinalText extends Phaser.GameObjects.BitmapText {
     scene.add.existing(this);
     this.setTint(mainPlayer ? COLORS.BLUE : COLORS.BLACK);
     this.text = this.getPosFormated(pos) + this.getSpaces(8) + this.getScoreFormated(playerResult.score);
-    // this.getSpaces(5) +
-    // this.getPlayerFormated(playerResult.playerId);
+    this.setScrollFactor(0);
   }
 
   private getPosFormated(pos: integer): string {

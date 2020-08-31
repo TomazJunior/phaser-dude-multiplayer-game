@@ -19,10 +19,6 @@ interface PlayerFieldsToBeSync extends BaseFieldsToBeSync {
   score: number;
 }
 
-interface GroundFieldsToBeSync extends BaseFieldsToBeSync {
-  groundSkin: string;
-}
-
 interface BaseFieldsToBeSync {
   x: number;
   y: number;

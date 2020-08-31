@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import { ClientChannel } from '@geckos.io/client';
 import MenuText from '../components/MenuText';
-import { COLORS, EVENTS } from '../../constants';
+import { COLORS } from '../../constants';
 import ScoreFinalText from '../components/ScoreFinalText';
 import Background from '../components/background';
 import { Button } from '../components/Button';
@@ -31,6 +31,7 @@ export default class GameOverScene extends Scene {
     this.cameras.main.fadeIn();
     this.background = new Background(this);
     this.scale.on('resize', (gameSize: any) => {
+      if (!gameSize || !this.cameras.main) return;
       this.cameras.main.width = gameSize.width;
       this.cameras.main.height = gameSize.height;
       this.background.adjustPosition();

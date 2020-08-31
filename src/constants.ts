@@ -55,14 +55,16 @@ export const COLORS = {
 };
 
 export const EVENTS = {
-  CURRENT_OBJECTS: 'CURRENT_OBJECTS',
-  CURSOR_UPDATE: 'CURSOR_UPDATE',
+  CURRENT_OBJECTS: 'A',
+  CURSOR_UPDATE: 'B',
   DISCONNECT: 'disconnect',
-  NEW_PLAYER: 'NEW_PLAYER',
+  NEW_PLAYER: 'C',
   READY: 'ready',
-  UPDATE_OBJECTS: 'UPDATE_OBJECTS',
-  SPAWN_PLAYER: 'SPAWN_PLAYER',
-  GAME_OVER: 'GAME_OVER',
-  RESET_GAME: 'RESET_GAME',
-  REMOVE_PLAYER: 'REMOVE_PLAYER',
+  UPDATE_OBJECTS: 'D',
+  SPAWN_PLAYER: 'E',
+  GAME_OVER: 'F',
+  RESET_GAME: 'G',
+  REMOVE_PLAYER: 'H',
 };
+
+export const FIELDS_MAPPING = ['x', 'y', 'skin', 'id', 'hidden', 'scale', 'animation', 'hit', 'alpha', 'life', 'score'];

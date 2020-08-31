@@ -1,7 +1,4 @@
-// import { ClientChannel } from '@geckos.io/client';
-// import * as Types from '@geckos.io/common/lib/types';
 import { ServerChannel } from '@geckos.io/server';
-// import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
 import { EVENTS, SKINS, GAME } from '../../constants';
@@ -11,12 +8,7 @@ import Map from './components/Map';
 import Player from './components/Player';
 import Star from './components/Star';
 import RoomManager from '../roomManager';
-
-// interface ServerChannel extends ClientChannel {
-//   broadcast: {
-//     emit(eventName: Types.EventName, data?: Types.Data | null, options?: Types.EmitOptions): void;
-//   };
-// }
+import { encodeObject } from '../../syncUtil';
 
 export default class GameManagerScene extends Scene {
   bombs: Phaser.GameObjects.Group;
@@ -46,10 +38,6 @@ export default class GameManagerScene extends Scene {
 
   create(): void {
     this.isGameOver = false;
-    // this.events.addListener('stopScene', () => {
-    //   // this.scene.stop();
-    //   console.log(`Scene in roomId <b>${this.roomId}</b> has stopped!`);
-    // });
 
     this.players = this.add.group();
     this.ground = this.add.group();
@@ -93,7 +81,13 @@ export default class GameManagerScene extends Scene {
       objectsToSync.push(...this.updateGroup(this.bombs));
     }
     if (objectsToSync.length) {
-      this.roomManager.emit(this.roomId, EVENTS.UPDATE_OBJECTS, objectsToSync);
+      this.roomManager.emit(
+        this.roomId,
+        EVENTS.UPDATE_OBJECTS,
+        objectsToSync.map((obj) => {
+          return encodeObject(obj);
+        }),
+      );
     }
     if (this.gameStarted && this.players.getFirstAlive() === null) {
       await this.setGameOver();

@@ -1,6 +1,6 @@
 import { Scene } from 'phaser';
 import { ClientChannel } from '@geckos.io/client';
-
+import { decodeObject } from '../../syncUtil';
 import { COLORS, EVENTS, GAME, HEART, PLAYER, SKINS } from '../../constants';
 import Map from '../../server/game/components/Map';
 import { setPlayerAnimation } from '../components/animations';
@@ -67,9 +67,9 @@ export default class GameScene extends Scene {
       this.createPlayer(player, false);
     });
 
-    this.channel.on(EVENTS.UPDATE_OBJECTS, (objectsToSync: PlayerFieldsToBeSync[] | BaseFieldsToBeSync[]) => {
-      console.log('update objs', JSON.stringify(objectsToSync).length, '=>', objectsToSync.length);
-      objectsToSync.forEach((object) => {
+    this.channel.on(EVENTS.UPDATE_OBJECTS, (objectsToSync: []) => {
+      objectsToSync.forEach((obj) => {
+        const object: PlayerFieldsToBeSync | BaseFieldsToBeSync = decodeObject(obj);
         const sprite = this.objects[object.id];
         if (sprite) {
           if (object.hidden !== null) sprite.setVisible(!object.hidden);
