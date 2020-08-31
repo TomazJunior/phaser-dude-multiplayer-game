@@ -7,7 +7,9 @@
     "client": "webpack --config webpack/webpack.client.js --watch",
     "server": "npm-run-all --parallel server:* client",
     "server:webpack": "webpack --config webpack/webpack.server.js --watch",
-    "server:nodemon": "nodemon build/server/server.js"
+    "server:nodemon": "nodemon build/server/server.js",
+    "webpack:prod": "NODE_ENV=production webpack --config webpack/webpack.client.js && NODE_ENV=production webpack --config webpack/webpack.server.js",
+    "start:prod": "nodemon dist/server/server.js"
   },
   "dependencies": {
     "@geckos.io/client": "^1.6.1",

@@ -4,6 +4,7 @@ const path = require('path');
 const webpack = require('webpack');
 
 const { NODE_ENV = 'development' } = process.env;
+const folder = NODE_ENV === 'development' ? 'build' : 'dist';
 
 module.exports = {
   entry: './src/server/server.ts',
@@ -11,7 +12,7 @@ module.exports = {
   target: 'node',
 
   output: {
-    path: path.resolve(__dirname, '../build/server'),
+    path: path.resolve(__dirname, `../${folder}/server`),
     filename: 'server.js',
   },
 

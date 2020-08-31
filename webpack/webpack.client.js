@@ -5,12 +5,13 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const { NODE_ENV = 'development' } = process.env;
+const folder = NODE_ENV === 'development' ? 'build' : 'dist';
 
 module.exports = {
   mode: NODE_ENV,
   entry: ['./src/client/index.ts'],
   output: {
-    path: path.resolve(__dirname, '../build/client'),
+    path: path.resolve(__dirname, `../${folder}/client`),
     filename: '[name].bundle.js',
     chunkFilename: '[name].chunk.js',
   },

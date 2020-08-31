@@ -1,5 +1,5 @@
 import * as Types from '@geckos.io/common/lib/types';
-import geckos, { GeckosServer, iceServers, ServerChannel } from '@geckos.io/server';
+import { GeckosServer, ServerChannel } from '@geckos.io/server';
 import { v4 as uuidv4 } from 'uuid';
 
 import { EVENTS, GAME } from '../constants';
@@ -27,12 +27,6 @@ interface Rooms {
   [room: string]: Room;
 }
 
-// interface ServerChannel extends ClientChannel {
-//   broadcast: {
-//     emit(eventName: Types.EventName, data?: Types.Data | null, options?: Types.EmitOptions): void;
-//   };
-// }
-
 export default class RoomManager {
   rooms: Rooms = {};
   constructor(public io: GeckosServer) {
@@ -51,15 +45,13 @@ export default class RoomManager {
   }
 
   getRooms() {
-    return {
-      rooms: Object.keys(this.rooms).map((roomid) => {
-        return {
-          roomid,
-          users: Object.keys(this.rooms[roomid].users),
-          removing: this.rooms[roomid].removing,
-        };
-      }),
-    };
+    return Object.keys(this.rooms).map((roomid) => {
+      return {
+        roomid,
+        users: Object.keys(this.rooms[roomid].users),
+        removing: this.rooms[roomid].removing,
+      };
+    });
   }
   joinRoom(channel: ServerChannel) {
     const roomId = this.chooseRoom();
@@ -166,7 +158,8 @@ export default class RoomManager {
       users: {},
       game,
       removing: false,
-      scene: game.scene.keys['GameManagerScene'],
+      //TODO: better fix
+      scene: (game.scene.keys as any)['GameManagerScene'],
     };
   }
 }

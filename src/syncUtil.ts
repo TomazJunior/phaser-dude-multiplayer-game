@@ -1,8 +1,9 @@
 import { FIELDS_MAPPING } from './constants';
 
 export const encodeObject = (fields: PlayerFieldsToBeSync | BaseFieldsToBeSync): Array<unknown> => {
-  return FIELDS_MAPPING.map((fieldName) => {
-    return fields[fieldName];
+  return FIELDS_MAPPING.map((fieldName: string) => {
+    //TODO: better fix
+    return (fields as any)[fieldName];
   });
 };
 

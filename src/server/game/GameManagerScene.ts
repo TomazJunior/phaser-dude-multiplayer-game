@@ -31,7 +31,10 @@ export default class GameManagerScene extends Scene {
   }
 
   init(): void {
-    const { roomManager, roomId } = this.game.config.preBoot();
+    //TODO: create custom preBoot
+    const { roomManager, roomId } = <{ roomManager: RoomManager; roomId: string }>(
+      (<unknown>this.game.config.preBoot(undefined))
+    );
     this.roomManager = roomManager;
     this.roomId = roomId;
   }

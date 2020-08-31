@@ -1,7 +1,6 @@
 import geckos, { GeckosServer, iceServers } from '@geckos.io/server';
 import cors from 'cors';
 import * as express from 'express';
-import { Request, Response } from 'express';
 import http from 'http';
 import path from 'path';
 
@@ -13,6 +12,7 @@ const server = http.createServer(app);
 const { PORT = 3000 } = process.env;
 
 console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+const folder = process.env.NODE_ENV === 'production' ? 'dist' : 'build';
 const io: GeckosServer = geckos({
   iceServers: process.env.NODE_ENV === 'production' ? iceServers : [],
 });
@@ -22,7 +22,7 @@ const roomManager = new RoomManager(io);
 
 app.use(cors());
 
-app.use(express.static(path.join(process.cwd(), 'build/client')));
+app.use(express.static(path.join(process.cwd(), `${folder}/client`)));
 
 app.use('/', new Routes(roomManager).router);
 
