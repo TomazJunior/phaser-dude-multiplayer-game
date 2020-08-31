@@ -64,7 +64,7 @@ export default class GameScene extends Scene {
     });
 
     this.channel.on(EVENTS.SPAWN_PLAYER, (player: PlayerFieldsToBeSync) => {
-      this.createPlayer(player, false);
+      this.createPlayer(player, player.id === this.channel.id);
     });
 
     this.channel.on(EVENTS.UPDATE_OBJECTS, (objectsToSync: []) => {

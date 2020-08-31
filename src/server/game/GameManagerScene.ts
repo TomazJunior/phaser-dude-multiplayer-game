@@ -131,8 +131,10 @@ export default class GameManagerScene extends Scene {
         const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
         const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
         const hidden = child.prevHidden !== child.hidden;
+        const hasChanged =
+          x || y || hidden || (child.skin === SKINS.DUDE && (<Player>child).hit !== (<Player>child).prevHit);
         child.postUpdate();
-        return x || y || hidden || (child.skin === SKINS.DUDE && (<Player>child).hit !== (<Player>child).prevHit);
+        return hasChanged;
       })
       .map((child: Player | Star | Bomb) => {
         return child.getFieldsTobeSync();
