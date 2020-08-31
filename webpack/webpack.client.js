@@ -4,8 +4,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
+const { NODE_ENV = 'development' } = process.env;
+
 module.exports = {
-  mode: 'development',
+  mode: NODE_ENV,
   entry: ['./src/client/index.ts'],
   output: {
     path: path.resolve(__dirname, '../build/client'),
