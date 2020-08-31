@@ -69,9 +69,18 @@ export default class GameManagerScene extends Scene {
       },
       this,
     );
+
+    this.events.on(
+      EVENTS.REMOVE_PLAYER,
+      ({ channelId }: RemoveChannel) => {
+        console.log('Remove user ' + channelId);
+        this.removePlayer(channelId);
+      },
+      this,
+    );
   }
 
-  async update(): void {
+  async update(): Promise<void> {
     if (this.isGameOver) {
       return;
     }
@@ -96,9 +105,12 @@ export default class GameManagerScene extends Scene {
       };
     });
     this.roomManager.emit(this.roomId, EVENTS.GAME_OVER, playerResults);
-    this.players.children.iterate((child: Player) => {
-      this.roomManager.leaveRoom(this.roomId, child.playerId);
-    });
+    this.players.children
+      .getArray()
+      .filter((child: Player) => !!child)
+      .forEach((child: Player) => {
+        this.roomManager.leaveRoom(this.roomId, child.playerId);
+      });
     await this.roomManager.removeRoom(this.roomId);
   }
 
@@ -140,10 +152,6 @@ export default class GameManagerScene extends Scene {
   }
 
   private setupEventListeners(channel: ServerChannel) {
-    channel.on(EVENTS.REMOVE_PLAYER, ({ channelId }: RemoveChannel) => {
-      console.log('Remove user ' + channelId);
-      this.removePlayer(channelId);
-    });
     channel.on(EVENTS.CURSOR_UPDATE, (data: CursorMoviment) => {
       const currentPlayer: Player = this.getPlayer(channel.id);
       if (currentPlayer) {
@@ -155,7 +163,7 @@ export default class GameManagerScene extends Scene {
   private removePlayer(channelId: string) {
     const currentPlayer = this.getPlayer(channelId);
     if (currentPlayer) {
-      this.players.remove(currentPlayer);
+      this.players.remove(currentPlayer, true);
     }
   }
 

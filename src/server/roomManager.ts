@@ -76,6 +76,7 @@ export default class RoomManager {
     if (this.isRemoving(roomId)) return;
     if (!this.roomExists(roomId)) return;
     this.rooms[roomId].scene.events.emit(EVENTS.REMOVE_PLAYER, { channelId });
+    this.emit(roomId, EVENTS.DISCONNECT, channelId);
   }
 
   async removeRoom(roomId: string) {

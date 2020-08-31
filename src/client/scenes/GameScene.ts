@@ -69,6 +69,7 @@ export default class GameScene extends Scene {
 
     this.channel.on(EVENTS.UPDATE_OBJECTS, (object: PlayerFieldsToBeSync | BaseFieldsToBeSync) => {
       const sprite = this.objects[object.id];
+      console.log('update obj', object.id, ' - ', object.skin, ', size: ', JSON.stringify(object).length);
       if (sprite) {
         if (object.hidden !== null) sprite.setVisible(!object.hidden);
         if (object.x !== null) sprite.x = object.x;

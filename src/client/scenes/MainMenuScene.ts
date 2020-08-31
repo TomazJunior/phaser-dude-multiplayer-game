@@ -21,6 +21,7 @@ export default class MainMenuScene extends Scene {
     this.cameras.main.fadeIn();
     this.background = new Background(this);
     this.scale.on('resize', (gameSize: any) => {
+      if (!gameSize || !this.cameras.main) return;
       this.cameras.main.width = gameSize.width;
       this.cameras.main.height = gameSize.height;
       this.background.adjustPosition();

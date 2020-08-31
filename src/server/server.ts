@@ -26,10 +26,6 @@ app.use(express.static(path.join(process.cwd(), 'build/client')));
 
 app.use('/', new Routes(roomManager).router);
 
-app.use('/details', (req, res) => {
-  res.json(roomManager.getRooms());
-});
-
 server.listen(PORT, () => {
   console.log('server started at http://localhost:' + PORT);
 });
