@@ -112,6 +112,12 @@ export default class GameManagerScene extends Scene {
         this.roomManager.leaveRoom(this.roomId, child.playerId);
       });
     await this.roomManager.removeRoom(this.roomId);
+
+    this.players.destroy(true);
+    this.bombs.destroy(true);
+    this.ground.destroy(true);
+    this.stars.destroy(true);
+    this.scene.stop();
   }
 
   private updateGroup(group: Phaser.GameObjects.Group): PlayerFieldsToBeSync[] | BaseFieldsToBeSync[] {

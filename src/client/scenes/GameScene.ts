@@ -190,9 +190,14 @@ export default class GameScene extends Scene {
 
   goToGameOverScene(playersResult: PlayerResult[]): void {
     Object.keys(this.objects).forEach((key: string) => {
-      this.objects[key].destroy();
+      this.objects[key].destroy(true);
       delete this.objects[key];
     });
+    this.background.destroy(true);
+    this.hearts.destroy(true);
+    this.scoreText.destroy(true);
+    this.hiScoreText.destroy(true);
+
     this.scene.stop();
     this.scene.start('GameOverScene', { channel: this.channel, playersResult });
   }

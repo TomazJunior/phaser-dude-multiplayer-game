@@ -84,17 +84,16 @@ export default class RoomManager {
     if (!this.roomExists(roomId)) return;
     console.log(`Removing room <b>${roomId}</b>`);
     this.rooms[roomId].removing = true;
-    this.rooms[roomId].scene.events.emit('stopScene');
+    // this.rooms[roomId].scene.events.emit('stopScene');
 
-    // setTimeout(async () => {
+    setTimeout(async () => {
+      await this.rooms[roomId].game.destroy(true, false);
+      this.rooms[roomId].game = null;
+      delete this.rooms[roomId];
 
-    // }, 5000);
-    await this.rooms[roomId].game.destroy(true, false);
-    this.rooms[roomId].game = null;
-    delete this.rooms[roomId];
-
-    console.log(`Room <b>${roomId}</b> has been removed!`);
-    console.log(`Remaining rooms: ${Object.keys(this.rooms).length}`);
+      console.log(`Room <b>${roomId}</b> has been removed!`);
+      console.log(`Remaining rooms: ${Object.keys(this.rooms).length}`);
+    }, 2000);
   }
 
   isRemoving(roomId: string): boolean {
