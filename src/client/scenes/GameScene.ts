@@ -178,12 +178,12 @@ export default class GameScene extends Scene {
   }
 
   createInput(): void {
-    this.cursors = new Cursors(this, (data: CursorMoviment) => {
-      this.channel.emit(EVENTS.CURSOR_UPDATE, data);
+    this.cursors = new Cursors(this, (total: number) => {
+      this.channel.emit(EVENTS.CURSOR_UPDATE, total);
     });
     if (this.sys.game.device.input.touch) {
-      this.controls = new Controls(this, (data: CursorMoviment) => {
-        this.channel.emit(EVENTS.CURSOR_UPDATE, data);
+      this.controls = new Controls(this, (total: number) => {
+        this.channel.emit(EVENTS.CURSOR_UPDATE, total);
       });
     }
   }

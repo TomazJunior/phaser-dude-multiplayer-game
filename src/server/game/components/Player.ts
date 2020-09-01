@@ -48,6 +48,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     this.setScale(this.scale);
 
     this.setCollideWorldBounds(true).setOrigin(0.5);
+    this.setInvunerableState();
     scene.events.on('update', this.update, this);
   }
 
@@ -58,10 +59,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
       this.kill();
       return;
     }
+    this.setInvunerableState();
+  }
+
+  setInvunerableState(delay = 3000): void {
     this.hit = true;
     this.alpha = 0.6;
     this.scene.time.addEvent({
-      delay: 3000,
+      delay,
       callback: () => {
         this.hit = false;
         this.alpha = 1;

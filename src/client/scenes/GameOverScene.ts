@@ -28,6 +28,9 @@ export default class GameOverScene extends Scene {
 
   create(): void {
     this.cameras.main.setBackgroundColor('#ade6ff');
+    this.cameras.main.stopFollow();
+    this.cameras.main.setPosition(0, 0);
+
     this.background = new Background(this);
     this.scale.on('resize', (gameSize: any) => {
       if (!gameSize || !this.cameras.main) return;
@@ -36,8 +39,6 @@ export default class GameOverScene extends Scene {
       this.background.adjustPosition();
     });
     this.background.adjustPosition();
-    this.cameras.main.stopFollow();
-    this.cameras.main.setPosition(0, 0);
 
     this.texts = this.add.group();
     this.texts.add(new MenuText(this, this.posX, this.posY, 'Score Ranking', COLORS.BLACK, 56));

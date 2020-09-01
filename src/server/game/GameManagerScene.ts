@@ -166,10 +166,15 @@ export default class GameManagerScene extends Scene {
   }
 
   private setupEventListeners(channel: ServerChannel) {
-    channel.on(EVENTS.CURSOR_UPDATE, (data: CursorMoviment) => {
+    channel.on(EVENTS.CURSOR_UPDATE, (total: number) => {
       const currentPlayer: Player = this.getPlayer(channel.id);
-      if (currentPlayer) {
-        currentPlayer.setMove(data);
+      if (currentPlayer && total !== 0) {
+        currentPlayer.setMove({
+          left: total === 1 || total === 5 ? true : false,
+          right: total === 2 || total === 6 ? true : false,
+          up: total === 4 || total === 6 || total === 5 ? true : false,
+          none: total === 8 ? true : false,
+        });
       }
     });
   }

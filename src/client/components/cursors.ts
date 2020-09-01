@@ -8,7 +8,7 @@ export default class Cursors {
   right = false;
   up = false;
 
-  constructor(public scene: Phaser.Scene, private emit: (data: CursorMoviment) => void) {
+  constructor(public scene: Phaser.Scene, private emit: (total: number) => void) {
     this.cursors = scene.input.keyboard.createCursorKeys();
     this.scene.events.on('update', this.update, this);
   }
@@ -37,7 +37,12 @@ export default class Cursors {
         this.up = true;
       }
 
-      this.emit({ left: this.left, right: this.right, up: this.up, none: this.none });
+      let total = 0;
+      if (this.left) total += 1;
+      if (this.right) total += 2;
+      if (this.up) total += 4;
+      if (this.none) total += 8;
+      this.emit(total);
     }
 
     this.prevNone = this.none;

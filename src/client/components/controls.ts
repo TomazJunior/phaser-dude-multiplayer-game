@@ -12,7 +12,7 @@ export default class Controls {
 
   buttons: { [key: string]: Control } = {};
 
-  constructor(public scene: Phaser.Scene, private emit: (data: CursorMoviment) => void) {
+  constructor(public scene: Phaser.Scene, private emit: (total: number) => void) {
     // add a second pointer
     scene.input.addPointer();
 
@@ -71,7 +71,12 @@ export default class Controls {
     this.none = this.left || this.right || this.up ? false : true;
 
     if (!this.none || this.none !== this.prevNone) {
-      this.emit({ left: this.left, right: this.right, up: this.up, none: this.none });
+      let total = 0;
+      if (this.left) total += 1;
+      if (this.right) total += 2;
+      if (this.up) total += 4;
+      if (this.none) total += 8;
+      this.emit(total);
     }
 
     this.prevNone = this.none;
