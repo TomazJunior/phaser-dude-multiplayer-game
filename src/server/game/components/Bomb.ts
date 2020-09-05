@@ -1,4 +1,4 @@
-import { SKINS, BOMB } from '../../../constants';
+import { BOMB, SKINS } from '../../../constants';
 
 export default class Bomb extends Phaser.Physics.Arcade.Sprite {
   body: Phaser.Physics.Arcade.Body;

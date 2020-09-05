@@ -1,26 +1,38 @@
-import { Scene } from 'phaser';
 import { ClientChannel } from '@geckos.io/client';
-import { decodeObject } from '../../syncUtil';
+import { Scene } from 'phaser';
+
 import { COLORS, EVENTS, GAME, HEART, PLAYER, SKINS } from '../../constants';
 import Map from '../../server/game/components/Map';
+import BombBase from '../../shared/components/BombBase';
+import GroundBase from '../../shared/components/GroundBase';
+import PlayerBase from '../../shared/components/PlayerBase';
+import StarBase from '../../shared/components/StarBase';
+import { decodeObject } from '../../syncUtil';
 import { setPlayerAnimation } from '../components/animations';
+import { createPlayerAnimations } from '../components/animations';
 import Background from '../components/background';
 import Controls from '../components/controls';
 import Cursors from '../components/cursors';
 import Heart from '../components/Heart';
 import ScoreHeaderText from '../components/ScoreHeaderText';
-import { createPlayerAnimations } from '../components/animations';
 
 export default class GameScene extends Scene {
-  objects: Record<string, Phaser.GameObjects.Sprite>;
+  objects: Record<string, Phaser.GameObjects.Sprite | Phaser.Physics.Arcade.Sprite>;
   channel: ClientChannel;
   background: Background;
-  player: Phaser.GameObjects.Sprite;
+  player: PlayerBase;
   hearts: Phaser.GameObjects.Group;
   scoreText: ScoreHeaderText;
   hiScoreText: ScoreHeaderText;
   cursors: Cursors;
   controls: Controls;
+
+  ground: Phaser.GameObjects.Group;
+  players: Phaser.GameObjects.Group;
+  stars: Phaser.GameObjects.Group;
+  bombs: Phaser.GameObjects.Group;
+
+  positions: Record<string, Array<PlayerFieldsToBeSync>> = {};
   constructor() {
     super({ key: 'GameScene' });
     this.objects = {};
@@ -41,7 +53,12 @@ export default class GameScene extends Scene {
 
     this.background = new Background(this);
 
+    this.players = this.add.group();
+    this.ground = this.add.group();
+    this.stars = this.add.group();
     this.hearts = this.add.group();
+    this.bombs = this.add.group();
+
     this.scoreText = new ScoreHeaderText(this, 15, HEART.HEIGHT / 2);
     this.hiScoreText = new ScoreHeaderText(this, GAME.WIDTH - 170, 15, 'HI-SCORE ');
     this.listenToChannel();
@@ -73,10 +90,15 @@ export default class GameScene extends Scene {
         const sprite = this.objects[object.id];
         if (sprite) {
           if (object.hidden !== null) sprite.setVisible(!object.hidden);
-          if (object.x !== null) sprite.x = object.x;
-          if (object.y !== null) sprite.y = object.y;
           if (object.skin === SKINS.DUDE) {
-            this.updateDudeObjects(<PlayerFieldsToBeSync>object, sprite, object.id === this.channel.id);
+            this.updateDudeObjects(
+              <PlayerFieldsToBeSync>object,
+              <Phaser.Physics.Arcade.Sprite>sprite,
+              object.id === this.channel.id,
+            );
+          } else {
+            if (object.x !== null) sprite.x = object.x;
+            if (object.y !== null) sprite.y = object.y;
           }
         } else {
           this.addSprite(object);
@@ -109,15 +131,32 @@ export default class GameScene extends Scene {
     this.createInput();
   }
 
-  private addSprite(object: BaseFieldsToBeSync): Phaser.GameObjects.Sprite {
-    const sprite = this.add.sprite(object.x, object.y, object.skin.toString()).setOrigin(0.5);
+  private addSprite(object: BaseFieldsToBeSync): Phaser.Physics.Arcade.Sprite | Phaser.GameObjects.Sprite {
+    let sprite;
+    if ([SKINS.GROUND_LEFT, SKINS.GROUND_MIDDLE, SKINS.GROUND_RIGHT].includes(object.skin)) {
+      sprite = new GroundBase(this, object.id, object.x, object.y, object.skin);
+      this.ground.add(sprite);
+    } else if (SKINS.DUDE === object.skin) {
+      sprite = new PlayerBase(this, object.id, object.x, object.y, object.skin);
+      this.players.add(sprite);
+    } else if (SKINS.STAR === object.skin) {
+      sprite = new StarBase(this, object.id, object.x, object.y, object.skin);
+      this.stars.add(sprite);
+    } else if (SKINS.BOMB === object.skin) {
+      sprite = new BombBase(this, object.id, object.x, object.y, object.skin);
+      this.bombs.add(sprite);
+    } else {
+      sprite = this.physics.add.sprite(object.x, object.y, object.skin.toString()).setOrigin(0.5);
+      this.physics.add.existing(sprite);
+      sprite.setCollideWorldBounds(true).setOrigin(0.5);
+    }
     this.objects[object.id] = sprite;
     if (object.hidden !== null) sprite.setVisible(!object.hidden);
     if (object.scale !== null) sprite.setScale(object.scale);
     return sprite;
   }
 
-  private updateDudeObjects(player: PlayerFieldsToBeSync, sprite: Phaser.GameObjects.Sprite, mainPlayer: boolean) {
+  private updateDudeObjects(player: PlayerFieldsToBeSync, sprite: Phaser.Physics.Arcade.Sprite, mainPlayer: boolean) {
     if (player.animation !== null) {
       setPlayerAnimation(sprite, player.animation);
     }
@@ -139,6 +178,13 @@ export default class GameScene extends Scene {
           }
         }
       }
+    } else {
+      if (player.x !== null) sprite.x = player.x;
+      if (player.y !== null) sprite.y = player.y;
+      // if (!this.positions[player.id]) {
+      //   this.positions[player.id] = [];
+      // }
+      // this.positions[player.id].push(player);
     }
     this.updateHiScore(player.score);
   }
@@ -157,11 +203,13 @@ export default class GameScene extends Scene {
     if (!this.objects[playerFields.id]) {
       const sprite = this.addSprite(playerFields);
       if (mainPlayer) {
-        this.player = sprite;
+        this.player = <PlayerBase>sprite;
         this.createHearts();
         setPlayerAnimation(this.player, playerFields.animation);
         this.cameras.main.startFollow(this.player);
+        this.physics.add.collider(this.stars, this.ground);
       }
+      this.physics.add.collider(sprite, this.ground);
     }
   }
 
@@ -174,7 +222,25 @@ export default class GameScene extends Scene {
 
   update(): void {
     this.background.parallax();
-    if (this.player) this.player.update(this.cursors);
+    if (this.player) {
+      this.player.setMove(this.cursors);
+      this.player.update();
+    }
+
+    // this.players.children.entries.forEach((x) => {
+    //   console.log(`#${x.id} ${JSON.stringify(x.body.position)}`);
+    // });
+
+    // Object.keys(this.positions).forEach((id: string) => {
+    //   if (this.positions[id].length) {
+    //     const player = this.positions[id].pop();
+    //     if (player) {
+    //       if (player.x !== null) this.objects[player.id].body.position.x = player.x;
+    //       if (player.y !== null) this.objects[player.id].body.position.y = player.y;
+    //       console.log(`#${player.id} ${JSON.stringify(player.body.position)}`);
+    //     }
+    //   }
+    // });
   }
 
   createInput(): void {
@@ -197,6 +263,10 @@ export default class GameScene extends Scene {
     this.hearts.destroy(true);
     this.scoreText.destroy(true);
     this.hiScoreText.destroy(true);
+    this.players.destroy(true);
+    this.ground.destroy(true);
+    this.stars.destroy(true);
+    this.bombs.destroy(true);
 
     this.scene.stop();
     this.scene.start('GameOverScene', { channel: this.channel, playersResult });

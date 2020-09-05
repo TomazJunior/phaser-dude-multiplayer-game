@@ -1,14 +1,14 @@
 import { ServerChannel } from '@geckos.io/server';
 import { Scene } from 'phaser';
 
-import { EVENTS, SKINS, GAME } from '../../constants';
+import { EVENTS, GAME, SKINS } from '../../constants';
+import { encodeObject } from '../../syncUtil';
+import RoomManager from '../roomManager';
 import Bomb from './components/Bomb';
 import Ground from './components/Ground';
 import Map from './components/Map';
 import Player from './components/Player';
 import Star from './components/Star';
-import RoomManager from '../roomManager';
-import { encodeObject } from '../../syncUtil';
 
 export default class GameManagerScene extends Scene {
   bombs: Phaser.GameObjects.Group;
@@ -101,7 +101,7 @@ export default class GameManagerScene extends Scene {
     console.log('game over');
     this.isGameOver = true;
     this.gameStarted = false;
-    const playerResults: PlayerResult[] = this.players.children.getArray().map(({ playerId, score }: Player) => {
+    const playerResults: PlayerResult[] = this.players.children.getArray().map(({ id: playerId, score }: Player) => {
       return {
         playerId,
         score,
@@ -112,7 +112,7 @@ export default class GameManagerScene extends Scene {
       .getArray()
       .filter((child: Player) => !!child)
       .forEach((child: Player) => {
-        this.roomManager.leaveRoom(this.roomId, child.playerId);
+        this.roomManager.leaveRoom(this.roomId, child.id);
       });
     await this.roomManager.removeRoom(this.roomId);
 
@@ -128,8 +128,8 @@ export default class GameManagerScene extends Scene {
       .getArray()
       .filter((child: Player | Star | Bomb) => {
         child.update();
-        const x = child.prevPosition.x.toFixed(0) !== child.body.position.x.toFixed(0);
-        const y = child.prevPosition.y.toFixed(0) !== child.body.position.y.toFixed(0);
+        const x = child.prevPosition.x.toFixed(0) !== child.x.toFixed(0);
+        const y = child.prevPosition.y.toFixed(0) !== child.y.toFixed(0);
         const hidden = child.prevHidden !== child.hidden;
         const hasChanged =
           x || y || hidden || (child.skin === SKINS.DUDE && (<Player>child).hit !== (<Player>child).prevHit);
@@ -149,9 +149,9 @@ export default class GameManagerScene extends Scene {
       for (let x = 0; x < row.length; x++) {
         const xx = x * this.map.tileSize + this.map.margin.x;
         const yy = y * this.map.tileSize + this.map.margin.y;
-        if (row[x] === 'X') this.ground.add(new Ground(this, this.newId(), xx, yy));
-        if (row[x] === '[') this.ground.add(new Ground(this, this.newId(), xx, yy, SKINS.GROUND_LEFT));
-        if (row[x] === ']') this.ground.add(new Ground(this, this.newId(), xx, yy, SKINS.GROUND_RIGHT));
+        if (row[x] === 'X') this.ground.add(new Ground(this, this.newId().toString(), xx, yy, SKINS.GROUND_MIDDLE));
+        if (row[x] === '[') this.ground.add(new Ground(this, this.newId().toString(), xx, yy, SKINS.GROUND_LEFT));
+        if (row[x] === ']') this.ground.add(new Ground(this, this.newId().toString(), xx, yy, SKINS.GROUND_RIGHT));
         if (['1', '2', '3', '4', '5'].includes(row[x])) {
           this.playerPositions[parseInt(row[x]) - 1] = { x: xx, y: yy - this.map.margin.y };
         }
@@ -242,7 +242,7 @@ export default class GameManagerScene extends Scene {
   private getPlayer(playerId: string): Player {
     if (!this.players || !this.players.children) return;
     return <Player>this.players.getChildren().find((p: Player) => {
-      return p.playerId === playerId;
+      return p.id === playerId;
     });
   }
 

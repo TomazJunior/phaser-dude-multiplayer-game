@@ -22,7 +22,7 @@ export default class Map {
   constructor() {
     const halfSize = this.tileSize / 2;
     this.margin = {
-      y: 3 * this.tileSize + 11 + halfSize, // 16 is the half of a box
+      y: 3 * this.tileSize + halfSize, // 16 is the half of a box
       x: halfSize,
     };
   }
